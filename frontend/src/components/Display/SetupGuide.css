@@ -1,0 +1,90 @@
+.setup-guide {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+  color: #e8e8e8;
+  overflow: auto;
+}
+
+.setup-guide-content {
+  text-align: left;
+  max-width: 560px;
+  padding: 48px 32px;
+}
+
+.setup-guide h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.setup-intro {
+  font-size: 17px;
+  color: #b8b8c4;
+  margin-bottom: 24px;
+}
+
+.setup-steps {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #ccc;
+  margin-bottom: 28px;
+  padding-left: 22px;
+}
+
+.setup-steps li {
+  margin-bottom: 10px;
+}
+
+.setup-ip-box {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+
+.setup-ip-box.setup-ip-wait {
+  border-color: rgba(255, 200, 100, 0.3);
+  background: rgba(255, 200, 100, 0.06);
+}
+
+.setup-ip-label {
+  display: block;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8a8a9a;
+  margin-bottom: 8px;
+}
+
+.setup-ip-link {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  color: #5ba3ff;
+  text-decoration: none;
+  word-break: break-all;
+  margin-bottom: 8px;
+}
+
+.setup-ip-link:hover {
+  text-decoration: underline;
+}
+
+.setup-ip-hint {
+  font-size: 14px;
+  color: #9a9aaa;
+}
+
+.setup-footer {
+  font-size: 14px;
+  color: #7a7a8a;
+}

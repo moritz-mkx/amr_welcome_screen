@@ -1,0 +1,17 @@
+{
+  "name": "amr-welcome-screen",
+  "version": "1.0.0",
+  "description": "Welcome Screen Slideshow System für Raspberry Pi",
+  "private": true,
+  "scripts": {
+    "install-all": "cd backend && npm install && cd ../frontend && npm install",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start"
+  },
+  "keywords": ["slideshow", "raspberry-pi", "welcome-screen"],
+  "author": "",
+  "license": "MIT"
+}

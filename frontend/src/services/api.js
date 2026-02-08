@@ -1,0 +1,101 @@
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+/**
+ * Datei-Operationen
+ */
+export const fileAPI = {
+  /**
+   * Gibt alle Dateien zurück
+   */
+  getAllFiles: async () => {
+    const response = await api.get('/files');
+    return response.data;
+  },
+
+  /**
+   * Lädt eine Datei hoch
+   */
+  uploadFile: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await api.post('/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
+  },
+
+  /**
+   * Löscht eine Datei
+   */
+  deleteFile: async (fileId) => {
+    const response = await api.delete(`/files/${fileId}`);
+    return response.data;
+  },
+
+  /**
+   * Aktualisiert die Reihenfolge der Dateien
+   */
+  updateFileOrder: async (fileIds) => {
+    const response = await api.put('/files/order', { fileIds });
+    return response.data;
+  },
+
+  /**
+   * Gibt die URL für eine Datei zurück
+   */
+  getFileUrl: (fileId) => {
+    return `${API_BASE_URL}/files/${fileId}`;
+  },
+
+  /**
+   * Gibt die Display-URL für eine Datei zurück
+   */
+  getDisplayUrl: (fileId) => {
+    return `${API_BASE_URL}/files/${fileId}/display`;
+  }
+};
+
+/**
+ * Konfigurations-Operationen
+ */
+export const configAPI = {
+  /**
+   * Gibt die aktuelle Konfiguration zurück
+   */
+  getConfig: async () => {
+    const response = await api.get('/config');
+    return response.data;
+  },
+
+  /**
+   * Aktualisiert die Konfiguration
+   */
+  updateConfig: async (updates) => {
+    const response = await api.put('/config', updates);
+    return response.data;
+  }
+};
+
+/**
+ * System-Informationen (z. B. IP für Einrichtung)
+ */
+export const systemAPI = {
+  getIP: async () => {
+    const response = await api.get('/system/ip');
+    return response.data;
+  }
+};
+
+export default api;

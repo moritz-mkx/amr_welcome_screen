@@ -1,0 +1,11 @@
+node_modules/
+dist/
+build/
+backend/uploads/
+backend/converted/
+backend/config.json
+backend/files-metadata.json
+*.log
+.DS_Store
+.env
+logs/

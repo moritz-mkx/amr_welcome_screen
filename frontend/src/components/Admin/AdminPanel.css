@@ -1,0 +1,86 @@
+.admin-panel {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.admin-header {
+  background-color: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 20px 40px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-header h1 {
+  font-size: 28px;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.admin-nav {
+  display: flex;
+  gap: 12px;
+}
+
+.admin-nav button {
+  padding: 10px 20px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.admin-nav button:hover {
+  background-color: #f0f0f0;
+}
+
+.admin-nav button.active {
+  background-color: #4a9eff;
+  color: #fff;
+  border-color: #4a9eff;
+}
+
+.preview-link {
+  padding: 10px 20px;
+  border: 1px solid #4a9eff;
+  background-color: #fff;
+  color: #4a9eff;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.2s;
+  margin-left: auto;
+}
+
+.preview-link:hover {
+  background-color: #4a9eff;
+  color: #fff;
+}
+
+.admin-content {
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.files-tab,
+.settings-tab {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.loading-spinner {
+  font-size: 24px;
+  color: #666;
+}
