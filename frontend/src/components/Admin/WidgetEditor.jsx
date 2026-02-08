@@ -72,23 +72,24 @@ function WidgetEditor({ config, onSave }) {
 
   const layout = widgets.map(({ i, x, y, w, h }) => ({ i, x, y, w, h }));
 
-  // Positionen nur bei echtem Drag/Resize aktualisieren (nicht bei onLayoutChange,
-  // da dieses auch beim initialen Rendern feuert und Positionen kompaktieren kann).
-  const applyLayoutFromGrid = useCallback((newLayout) => {
-    setWidgets(prev => prev.map(w => {
-      const item = newLayout.find(l => l.i === w.i);
-      if (!item) return w;
-      return { ...w, x: item.x, y: item.y, w: item.w, h: item.h };
-    }));
+  // Nur das tatsaechlich verschobene/vergroesserte Widget aktualisieren.
+  // NICHT die gesamte Layout-Liste anwenden, da react-grid-layout dort
+  // auch die Positionen anderer Widgets intern kompaktieren kann.
+  const handleDragStop = useCallback((_layout, _oldItem, newItem) => {
+    setWidgets(prev => prev.map(w =>
+      w.i === newItem.i
+        ? { ...w, x: newItem.x, y: newItem.y }
+        : w
+    ));
   }, []);
 
-  const handleDragStop = useCallback((_layout, _oldItem, _newItem, _placeholder, _e, _node) => {
-    applyLayoutFromGrid(_layout);
-  }, [applyLayoutFromGrid]);
-
-  const handleResizeStop = useCallback((_layout, _oldItem, _newItem, _placeholder, _e, _node) => {
-    applyLayoutFromGrid(_layout);
-  }, [applyLayoutFromGrid]);
+  const handleResizeStop = useCallback((_layout, _oldItem, newItem) => {
+    setWidgets(prev => prev.map(w =>
+      w.i === newItem.i
+        ? { ...w, x: newItem.x, y: newItem.y, w: newItem.w, h: newItem.h }
+        : w
+    ));
+  }, []);
 
   const handleAddWidget = useCallback((type) => {
     const i = generateWidgetId();
