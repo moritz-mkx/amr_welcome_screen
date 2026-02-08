@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import GridLayout from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
@@ -10,13 +10,20 @@ import './WidgetEditor.css';
 
 const COLS = 12;
 const ROWS = 12;
-const ROW_HEIGHT = 40;
+const MARGIN = [4, 4];
 
 const DEFAULT_CONFIG_BY_TYPE = {
   clock: { fontSize: 160, color: '#f0f0f5', showSeconds: true },
   date: { fontSize: 42, color: '#a0a0b0', format: 'long' },
   text: { text: 'Text', fontSize: 32, color: '#ffffff', fontWeight: '400', textAlign: 'center' },
   image: { src: 'logo', objectFit: 'contain' }
+};
+
+const DEFAULT_SIZE_BY_TYPE = {
+  clock: { w: 6, h: 2 },
+  date: { w: 6, h: 1 },
+  text: { w: 6, h: 1 },
+  image: { w: 4, h: 2 }
 };
 
 function generateWidgetId() {
@@ -27,6 +34,30 @@ function WidgetEditor({ config, onSave }) {
   const [widgets, setWidgets] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [containerSize, setContainerSize] = useState({ width: 800, height: 450 });
+  const previewRef = useRef(null);
+
+  // Container messen und bei Resize aktualisieren
+  useEffect(() => {
+    const el = previewRef.current;
+    if (!el) return;
+
+    const measure = () => {
+      const rect = el.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        setContainerSize({ width: rect.width, height: rect.height });
+      }
+    };
+
+    measure();
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // rowHeight dynamisch berechnen damit ROWS Zeilen exakt in den Container passen
+  const rowHeight = Math.max(10, (containerSize.height - (ROWS - 1) * MARGIN[1]) / ROWS);
 
   const clockWidgets = config.clockWidgets ?? [];
 
@@ -51,15 +82,16 @@ function WidgetEditor({ config, onSave }) {
 
   const handleAddWidget = useCallback((type) => {
     const i = generateWidgetId();
-    const config = DEFAULT_CONFIG_BY_TYPE[type] ?? {};
+    const widgetConfig = DEFAULT_CONFIG_BY_TYPE[type] ?? {};
+    const size = DEFAULT_SIZE_BY_TYPE[type] ?? { w: 6, h: 1 };
     const newWidget = {
       i,
       type,
       x: 0,
       y: widgets.length * 2,
-      w: type === 'image' ? 4 : 6,
-      h: type === 'clock' ? 4 : type === 'text' ? 2 : 2,
-      config: { ...config }
+      w: size.w,
+      h: size.h,
+      config: { ...widgetConfig }
     };
     setWidgets(prev => [...prev, newWidget]);
     setSelectedId(i);
@@ -73,6 +105,13 @@ function WidgetEditor({ config, onSave }) {
     setWidgets(prev => prev.filter(w => w.i !== widgetId));
     if (selectedId === widgetId) setSelectedId(null);
   }, [selectedId]);
+
+  const handleClearAll = useCallback(() => {
+    if (widgets.length === 0) return;
+    if (!window.confirm('Alle Widgets entfernen?')) return;
+    setWidgets([]);
+    setSelectedId(null);
+  }, [widgets.length]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -102,15 +141,19 @@ function WidgetEditor({ config, onSave }) {
 
       <div className="widget-editor-main">
         <div className="widget-editor-preview-wrap">
-          <div className="widget-editor-preview" style={{ aspectRatio: '16/9' }}>
+          <div
+            className="widget-editor-preview"
+            ref={previewRef}
+            style={{ aspectRatio: '16/9' }}
+          >
             <GridLayout
               className="widget-editor-grid"
               layout={layout}
               onLayoutChange={handleLayoutChange}
               cols={COLS}
-              rowHeight={ROW_HEIGHT}
-              width={800}
-              margin={[4, 4]}
+              rowHeight={rowHeight}
+              width={containerSize.width}
+              margin={MARGIN}
               containerPadding={[0, 0]}
               isDraggable
               isResizable
@@ -124,7 +167,7 @@ function WidgetEditor({ config, onSave }) {
                   onClick={() => setSelectedId(widget.i)}
                 >
                   <div className="widget-editor-cell-inner">
-                    <GridWidgetRenderer widget={widget} />
+                    <GridWidgetRenderer widget={widget} preview />
                   </div>
                 </div>
               ))}
@@ -140,6 +183,15 @@ function WidgetEditor({ config, onSave }) {
           >
             {saving ? 'Speichere…' : 'Uhr-Screen speichern'}
           </button>
+          {widgets.length > 0 && (
+            <button
+              type="button"
+              className="widget-editor-clear"
+              onClick={handleClearAll}
+            >
+              Alle Widgets entfernen
+            </button>
+          )}
           <a href="/display" className="widget-editor-preview-link" target="_blank" rel="noreferrer">
             Vorschau öffnen
           </a>

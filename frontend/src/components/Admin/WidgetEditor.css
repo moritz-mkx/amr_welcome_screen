@@ -154,3 +154,19 @@
   background: #4a9eff;
   color: #fff;
 }
+
+.widget-editor-clear {
+  padding: 10px 20px;
+  border: 1px solid #dc3545;
+  background: #fff;
+  color: #dc3545;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.widget-editor-clear:hover {
+  background: #dc3545;
+  color: #fff;
+}

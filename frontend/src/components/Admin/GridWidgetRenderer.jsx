@@ -22,7 +22,16 @@ function formatDate(date, format = 'long') {
   });
 }
 
-function WidgetClock({ config = {} }) {
+// Im Editor (preview=true) werden Schriftgroessen auf ein
+// darstellbares Mass begrenzt. Der Faktor 0.22 skaliert z.B.
+// 160px -> ~35px, 42px -> ~9px (Minimum 9px).
+const PREVIEW_SCALE = 0.22;
+function previewFontSize(size, preview) {
+  if (!preview) return size;
+  return Math.max(9, Math.round(size * PREVIEW_SCALE));
+}
+
+function WidgetClock({ config = {}, preview }) {
   const [now, setNow] = useState(new Date());
   const fontSize = config.fontSize ?? 160;
   const color = config.color ?? '#f0f0f5';
@@ -36,14 +45,14 @@ function WidgetClock({ config = {} }) {
   return (
     <div
       className="grid-widget-clock"
-      style={{ fontSize: `${fontSize}px`, color }}
+      style={{ fontSize: `${previewFontSize(fontSize, preview)}px`, color }}
     >
       {formatTime(now, showSeconds)}
     </div>
   );
 }
 
-function WidgetDate({ config = {} }) {
+function WidgetDate({ config = {}, preview }) {
   const [now, setNow] = useState(new Date());
   const fontSize = config.fontSize ?? 42;
   const color = config.color ?? '#a0a0b0';
@@ -57,14 +66,14 @@ function WidgetDate({ config = {} }) {
   return (
     <div
       className="grid-widget-date"
-      style={{ fontSize: `${fontSize}px`, color }}
+      style={{ fontSize: `${previewFontSize(fontSize, preview)}px`, color }}
     >
       {formatDate(now, format)}
     </div>
   );
 }
 
-function WidgetText({ config = {} }) {
+function WidgetText({ config = {}, preview }) {
   const text = config.text ?? '';
   const fontSize = config.fontSize ?? 32;
   const color = config.color ?? '#ffffff';
@@ -74,7 +83,7 @@ function WidgetText({ config = {} }) {
   return (
     <div
       className="grid-widget-text"
-      style={{ fontSize: `${fontSize}px`, color, fontWeight, textAlign }}
+      style={{ fontSize: `${previewFontSize(fontSize, preview)}px`, color, fontWeight, textAlign }}
     >
       {text || 'Text'}
     </div>
@@ -116,18 +125,18 @@ function WidgetImage({ config = {} }) {
 
 /**
  * Rendert ein einzelnes Widget (Text, Uhrzeit, Datum, Bild).
- * Wird im Editor und auf dem Display verwendet.
+ * Wird im Editor (preview=true) und auf dem Display (preview=false) verwendet.
  */
-function GridWidgetRenderer({ widget }) {
+function GridWidgetRenderer({ widget, preview = false }) {
   const { type, config = {} } = widget;
 
   switch (type) {
     case 'clock':
-      return <WidgetClock config={config} />;
+      return <WidgetClock config={config} preview={preview} />;
     case 'date':
-      return <WidgetDate config={config} />;
+      return <WidgetDate config={config} preview={preview} />;
     case 'text':
-      return <WidgetText config={config} />;
+      return <WidgetText config={config} preview={preview} />;
     case 'image':
       return <WidgetImage config={config} />;
     default:
