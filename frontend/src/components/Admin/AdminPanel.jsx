@@ -55,7 +55,10 @@ function AdminPanel() {
       setConfig(updatedConfig);
     } catch (error) {
       console.error('Fehler beim Aktualisieren der Konfiguration:', error);
-      const msg = error.response?.data?.error || error.message || 'Fehler beim Aktualisieren der Konfiguration';
+      let msg = error.response?.data?.error || error.message || 'Fehler beim Aktualisieren der Konfiguration';
+      if (error.message === 'Network Error' || error.code === 'ERR_NETWORK') {
+        msg = 'Verbindung zum Server fehlgeschlagen. Bitte prüfen: gleiches WLAN wie der Pi? Seite mit aktuellem Build (ggf. Cache leeren / Hard-Reload)?';
+      }
       alert(msg);
     }
   };

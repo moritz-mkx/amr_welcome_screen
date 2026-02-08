@@ -1,7 +1,12 @@
 import axios from 'axios';
 
-// Relativer Pfad: API immer auf dem gleichen Host wie die Seite (funktioniert auf Pi-Kiosk und von anderen Geräten)
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// Immer denselben Host wie die geöffnete Seite nutzen (funktioniert auf Pi-Kiosk und von anderen Geräten)
+function getApiBaseUrl() {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  if (typeof window !== 'undefined') return window.location.origin + '/api';
+  return '/api';
+}
+const API_BASE_URL = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
