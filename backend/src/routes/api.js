@@ -161,6 +161,50 @@ router.get('/logo', (req, res) => {
 });
 
 /**
+ * GET /api/widget-image/:id
+ * Liefert ein Widget-Bild (Dateiname z. B. widget-<uuid>.png)
+ */
+router.get('/widget-image/:id', (req, res) => {
+  try {
+    const rawId = req.params.id;
+    const safeId = path.basename(rawId).replace(/[^a-zA-Z0-9._-]/g, '');
+    if (!safeId) {
+      return res.status(400).json({ error: 'Ungültige ID' });
+    }
+    const filePath = path.join(configService.WIDGET_IMAGES_DIR, safeId);
+    if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+      return res.status(404).end();
+    }
+    res.sendFile(path.resolve(filePath));
+  } catch (error) {
+    console.error('Fehler beim Abrufen des Widget-Bildes:', error);
+    res.status(404).end();
+  }
+});
+
+/**
+ * DELETE /api/widget-image/:id
+ * Löscht ein Widget-Bild
+ */
+router.delete('/widget-image/:id', (req, res) => {
+  try {
+    const rawId = req.params.id;
+    const safeId = path.basename(rawId).replace(/[^a-zA-Z0-9._-]/g, '');
+    if (!safeId || !safeId.startsWith('widget-')) {
+      return res.status(400).json({ error: 'Ungültige ID' });
+    }
+    const filePath = path.join(configService.WIDGET_IMAGES_DIR, safeId);
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+      fs.unlinkSync(filePath);
+    }
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Fehler beim Löschen des Widget-Bildes:', error);
+    res.status(500).json({ error: error.message || 'Fehler beim Löschen' });
+  }
+});
+
+/**
  * GET /api/system/ip
  * Gibt die IP-Adresse(n) des Rechners zurück (für Einrichtungs-Anzeige)
  */

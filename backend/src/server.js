@@ -38,7 +38,7 @@ if (fs.existsSync(frontendDist)) {
 }
 
 // Stelle sicher, dass Upload- und Logo-Verzeichnisse existieren
-[fileService.UPLOADS_DIR, fileService.CONVERTED_DIR, configService.LOGO_DIR].forEach(dir => {
+[fileService.UPLOADS_DIR, fileService.CONVERTED_DIR, configService.LOGO_DIR, configService.WIDGET_IMAGES_DIR].forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }

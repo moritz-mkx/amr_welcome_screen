@@ -5,6 +5,7 @@ const router = express.Router();
 const uploadMiddleware = require('../middleware/upload');
 const upload = uploadMiddleware;
 const uploadLogo = uploadMiddleware.uploadLogo;
+const uploadWidgetImage = uploadMiddleware.uploadWidgetImage;
 const fileService = require('../services/fileService');
 const configService = require('../services/configService');
 const pdfConverter = require('../services/pdfConverter');
@@ -98,6 +99,22 @@ router.post('/config/logo', uploadLogo.single('logo'), (req, res) => {
   } catch (error) {
     console.error('Fehler beim Logo-Upload:', error);
     res.status(500).json({ error: error.message || 'Fehler beim Logo-Upload' });
+  }
+});
+
+/**
+ * POST /api/widget-image
+ * Lädt ein Bild für ein Widget hoch (static/widgets/)
+ */
+router.post('/widget-image', uploadWidgetImage.single('image'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Keine Datei hochgeladen' });
+    }
+    res.json({ success: true, id: req.file.filename });
+  } catch (error) {
+    console.error('Fehler beim Widget-Bild-Upload:', error);
+    res.status(500).json({ error: error.message || 'Fehler beim Hochladen' });
   }
 });
 

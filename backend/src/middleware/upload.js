@@ -1,4 +1,5 @@
 const fs = require('fs');
+const crypto = require('crypto');
 const multer = require('multer');
 const path = require('path');
 const fileService = require('../services/fileService');
@@ -71,5 +72,32 @@ const uploadLogo = multer({
   limits: { fileSize: 5 * 1024 * 1024 }
 });
 
+// Widget-Bild-Upload: static/widgets/<id>.<ext>
+const widgetImageStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = configService.WIDGET_IMAGES_DIR;
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || (file.mimetype === 'image/png' ? '.png' : '.jpg');
+    const id = 'widget-' + crypto.randomUUID();
+    cb(null, id + ext);
+  }
+});
+
+const uploadWidgetImage = multer({
+  storage: widgetImageStorage,
+  fileFilter: (req, file, cb) => {
+    if (ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Nur Bilder (JPG, PNG, GIF, WEBP) erlaubt.'), false);
+    }
+  },
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
+
 module.exports = upload;
 module.exports.uploadLogo = uploadLogo;
+module.exports.uploadWidgetImage = uploadWidgetImage;

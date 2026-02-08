@@ -1,28 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
-import { configAPI } from '../../services/api';
+import { useState, useEffect } from 'react';
 import './Settings.css';
 
 function Settings({ config, onUpdate }) {
   const [slideInterval, setSlideInterval] = useState(config.slideInterval || 5000);
   const [transitionDuration, setTransitionDuration] = useState(config.transitionDuration || 1000);
   const [emptyScreenMode, setEmptyScreenMode] = useState(config.emptyScreenMode || 'setup');
-  const [timeFontSize, setTimeFontSize] = useState(config.timeFontSize ?? 160);
-  const [dateFontSize, setDateFontSize] = useState(config.dateFontSize ?? 42);
-  const [logoMaxWidth, setLogoMaxWidth] = useState(config.logoMaxWidth ?? 320);
-  const [logoMaxHeight, setLogoMaxHeight] = useState(config.logoMaxHeight ?? 120);
   const [saving, setSaving] = useState(false);
-  const [logoUploading, setLogoUploading] = useState(false);
-  const [logoKey, setLogoKey] = useState(0);
-  const logoInputRef = useRef(null);
 
   useEffect(() => {
     setSlideInterval(config.slideInterval || 5000);
     setTransitionDuration(config.transitionDuration || 1000);
     setEmptyScreenMode(config.emptyScreenMode || 'setup');
-    setTimeFontSize(config.timeFontSize ?? 160);
-    setDateFontSize(config.dateFontSize ?? 42);
-    setLogoMaxWidth(config.logoMaxWidth ?? 320);
-    setLogoMaxHeight(config.logoMaxHeight ?? 120);
   }, [config]);
 
   const handleSave = async () => {
@@ -31,32 +19,13 @@ function Settings({ config, onUpdate }) {
       await onUpdate({
         slideInterval: parseInt(slideInterval, 10),
         transitionDuration: parseInt(transitionDuration, 10),
-        emptyScreenMode,
-        timeFontSize: parseInt(timeFontSize, 10),
-        dateFontSize: parseInt(dateFontSize, 10),
-        logoMaxWidth: parseInt(logoMaxWidth, 10),
-        logoMaxHeight: parseInt(logoMaxHeight, 10)
+        emptyScreenMode
       });
       alert('Einstellungen gespeichert!');
     } catch (error) {
       alert('Fehler beim Speichern der Einstellungen');
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleLogoUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file || !file.type.startsWith('image/')) return;
-    setLogoUploading(true);
-    try {
-      await configAPI.uploadLogo(file);
-      setLogoKey(k => k + 1);
-    } catch (err) {
-      alert(err.response?.data?.error || 'Fehler beim Logo-Upload');
-    } finally {
-      setLogoUploading(false);
-      if (logoInputRef.current) logoInputRef.current.value = '';
     }
   };
 
@@ -99,109 +68,9 @@ function Settings({ config, onUpdate }) {
               <span>Uhr und Datum anzeigen</span>
             </label>
           </div>
-        </div>
-
-        <div className="setting-item">
-          <label>
-            <strong>Uhr-Anzeige: Logo</strong>
-          </label>
           <p className="setting-description">
-            Logo, das über der Uhrzeit angezeigt wird (z. B. Firmenlogo). Ersetzt das bisherige Logo.
+            Layout der Uhr-Anzeige (Logo, Uhrzeit, Datum, Text, Bilder) konfigurieren Sie im Tab <strong>Uhr-Screen</strong>.
           </p>
-          <div className="setting-logo-row">
-            <input
-              ref={logoInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleLogoUpload}
-              disabled={logoUploading}
-              className="setting-logo-input"
-            />
-            {logoUploading && <span className="setting-logo-status">Wird hochgeladen…</span>}
-          </div>
-          <div className="setting-logo-preview">
-            <img
-              key={logoKey}
-              src={configAPI.getLogoUrl() + '?t=' + Date.now()}
-              alt="Logo Vorschau"
-              onError={(e) => { e.target.style.display = 'none'; }}
-              className="setting-logo-img"
-            />
-          </div>
-          <label htmlFor="logoMaxWidth">
-            <strong>Logo: maximale Breite</strong>
-            <span className="setting-value">{logoMaxWidth} px</span>
-          </label>
-          <input
-            id="logoMaxWidth"
-            type="range"
-            min="80"
-            max="600"
-            step="20"
-            value={logoMaxWidth}
-            onChange={(e) => setLogoMaxWidth(Number(e.target.value))}
-          />
-          <div className="setting-range-labels">
-            <span>80 px</span>
-            <span>600 px</span>
-          </div>
-          <label htmlFor="logoMaxHeight">
-            <strong>Logo: maximale Höhe</strong>
-            <span className="setting-value">{logoMaxHeight} px</span>
-          </label>
-          <input
-            id="logoMaxHeight"
-            type="range"
-            min="40"
-            max="300"
-            step="10"
-            value={logoMaxHeight}
-            onChange={(e) => setLogoMaxHeight(Number(e.target.value))}
-          />
-          <div className="setting-range-labels">
-            <span>40 px</span>
-            <span>300 px</span>
-          </div>
-        </div>
-
-        <div className="setting-item">
-          <label htmlFor="timeFontSize">
-            <strong>Uhr-Anzeige: Größe der Uhrzeit</strong>
-            <span className="setting-value">{timeFontSize} px</span>
-          </label>
-          <input
-            id="timeFontSize"
-            type="range"
-            min="80"
-            max="400"
-            step="10"
-            value={timeFontSize}
-            onChange={(e) => setTimeFontSize(Number(e.target.value))}
-          />
-          <div className="setting-range-labels">
-            <span>80 px</span>
-            <span>400 px</span>
-          </div>
-        </div>
-
-        <div className="setting-item">
-          <label htmlFor="dateFontSize">
-            <strong>Uhr-Anzeige: Größe des Datums</strong>
-            <span className="setting-value">{dateFontSize} px</span>
-          </label>
-          <input
-            id="dateFontSize"
-            type="range"
-            min="20"
-            max="120"
-            step="2"
-            value={dateFontSize}
-            onChange={(e) => setDateFontSize(Number(e.target.value))}
-          />
-          <div className="setting-range-labels">
-            <span>20 px</span>
-            <span>120 px</span>
-          </div>
         </div>
 
         <div className="setting-item">

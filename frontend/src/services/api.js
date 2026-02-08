@@ -110,6 +110,27 @@ export const configAPI = {
 };
 
 /**
+ * Widget-Bilder (für Bild-Widgets auf dem Uhr-Screen)
+ */
+export const widgetImageAPI = {
+  upload: async (file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    const response = await api.post('/widget-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  },
+
+  getUrl: (id) => `${API_BASE_URL}/widget-image/${encodeURIComponent(id)}`,
+
+  delete: async (id) => {
+    const response = await api.delete(`/widget-image/${encodeURIComponent(id)}`);
+    return response.data;
+  }
+};
+
+/**
  * System-Informationen (z. B. IP für Einrichtung)
  */
 export const systemAPI = {

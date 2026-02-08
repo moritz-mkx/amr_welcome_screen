@@ -1,64 +1,33 @@
-import { useState, useEffect } from 'react';
+import GridWidgetRenderer from '../Admin/GridWidgetRenderer';
 import './ClockScreen.css';
 
-function formatTime(date) {
-  return date.toLocaleTimeString('de-DE', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  });
-}
-
-function formatDate(date) {
-  return date.toLocaleDateString('de-DE', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
-  });
-}
+const FALLBACK_WIDGETS = [
+  { i: 'widget-logo', type: 'image', x: 4, y: 0, w: 4, h: 2, config: { src: 'logo', objectFit: 'contain' } },
+  { i: 'widget-clock', type: 'clock', x: 3, y: 3, w: 6, h: 4, config: { fontSize: 160, color: '#f0f0f5', showSeconds: true } },
+  { i: 'widget-date', type: 'date', x: 3, y: 7, w: 6, h: 2, config: { fontSize: 42, color: '#a0a0b0', format: 'long' } }
+];
 
 function ClockScreen({ config = {} }) {
-  const [now, setNow] = useState(new Date());
-  const [logoOk, setLogoOk] = useState(false);
-
-  const timeFontSize = config.timeFontSize ?? 160;
-  const dateFontSize = config.dateFontSize ?? 42;
-  const logoMaxWidth = config.logoMaxWidth ?? 320;
-  const logoMaxHeight = config.logoMaxHeight ?? 120;
-
-  useEffect(() => {
-    const interval = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(interval);
-  }, []);
+  const widgets = Array.isArray(config.clockWidgets) && config.clockWidgets.length > 0
+    ? config.clockWidgets
+    : FALLBACK_WIDGETS;
 
   return (
-    <div className="clock-screen">
-      <img
-        className="clock-logo"
-        src="/api/logo"
-        alt=""
-        onLoad={() => setLogoOk(true)}
-        onError={() => setLogoOk(false)}
-        style={{
-          display: logoOk ? 'block' : 'none',
-          maxWidth: `${logoMaxWidth}px`,
-          maxHeight: `${logoMaxHeight}px`
-        }}
-      />
-      <div
-        className="clock-time"
-        style={{ fontSize: `${timeFontSize}px` }}
-      >
-        {formatTime(now)}
-      </div>
-      <div
-        className="clock-date"
-        style={{ fontSize: `${dateFontSize}px` }}
-      >
-        {formatDate(now)}
-      </div>
+    <div className="clock-screen clock-screen-grid">
+      {widgets.map((widget) => (
+        <div
+          key={widget.i}
+          className="clock-screen-cell"
+          style={{
+            gridColumn: `${widget.x + 1} / span ${widget.w}`,
+            gridRow: `${widget.y + 1} / span ${widget.h}`
+          }}
+        >
+          <div className="clock-screen-cell-inner">
+            <GridWidgetRenderer widget={widget} />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

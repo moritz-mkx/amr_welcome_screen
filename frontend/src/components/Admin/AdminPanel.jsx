@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import FileUpload from './FileUpload';
 import FileList from './FileList';
 import Settings from './Settings';
+import WidgetEditor from './WidgetEditor';
 import { fileAPI, configAPI } from '../../services/api';
 import './AdminPanel.css';
 
@@ -88,6 +89,12 @@ function AdminPanel() {
           >
             Einstellungen
           </button>
+          <button
+            className={activeTab === 'clock' ? 'active' : ''}
+            onClick={() => setActiveTab('clock')}
+          >
+            Uhr-Screen
+          </button>
           <a href="/display" className="preview-link" target="_blank">
             Vorschau
           </a>
@@ -109,6 +116,12 @@ function AdminPanel() {
         {activeTab === 'settings' && (
           <div className="settings-tab">
             <Settings config={config} onUpdate={handleConfigUpdate} />
+          </div>
+        )}
+
+        {activeTab === 'clock' && (
+          <div className="clock-tab">
+            <WidgetEditor config={config} onSave={loadData} />
           </div>
         )}
       </main>
