@@ -21,12 +21,19 @@ app.use('/api', uploadRoutes);
 
 // Serve static files from frontend build (wenn gebaut)
 const frontendDist = path.join(__dirname, '../../frontend/dist');
-if (require('fs').existsSync(frontendDist)) {
+if (fs.existsSync(frontendDist)) {
   app.use(express.static(frontendDist));
-  
-  // Alle anderen Routes zum Frontend weiterleiten (für React Router)
   app.get('*', (req, res) => {
     res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+} else {
+  app.get('*', (req, res) => {
+    res.status(503).send(
+      '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Welcome Screen</title></head><body>' +
+      '<h1>Frontend nicht gebaut</h1><p>Bitte auf dem Gerät ausführen:</p>' +
+      '<pre>cd frontend && npm run build && cd ..</pre>' +
+      '<p>Anschließend Server neu starten (z. B. <code>pm2 restart welcome-screen</code>).</p></body></html>'
+    );
   });
 }
 
