@@ -168,7 +168,7 @@ function WidgetEditor({ config, onSave }) {
               isDraggable
               isResizable
               compactType={null}
-              preventCollision={false}
+              allowOverlap
               onDragStop={handleDragStop}
               onResizeStop={handleResizeStop}
             >
