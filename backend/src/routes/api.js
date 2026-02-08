@@ -132,7 +132,10 @@ router.put('/config', (req, res) => {
     res.json(config);
   } catch (error) {
     console.error('Fehler beim Aktualisieren der Konfiguration:', error);
-    res.status(500).json({ error: 'Fehler beim Aktualisieren der Konfiguration' });
+    const message = error.code === 'EACCES'
+      ? 'Keine Schreibrechte für config.json. Auf dem Pi ausführen: chown pi:pi backend/config.json'
+      : (error.message || 'Fehler beim Aktualisieren der Konfiguration');
+    res.status(500).json({ error: message });
   }
 });
 

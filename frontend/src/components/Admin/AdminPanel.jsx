@@ -55,7 +55,8 @@ function AdminPanel() {
       setConfig(updatedConfig);
     } catch (error) {
       console.error('Fehler beim Aktualisieren der Konfiguration:', error);
-      alert('Fehler beim Aktualisieren der Konfiguration');
+      const msg = error.response?.data?.error || error.message || 'Fehler beim Aktualisieren der Konfiguration';
+      alert(msg);
     }
   };
 

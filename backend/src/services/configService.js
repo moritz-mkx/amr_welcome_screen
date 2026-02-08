@@ -37,6 +37,10 @@ function saveConfig(config) {
   try {
     // Stelle sicher, dass alle Standard-Werte vorhanden sind
     const mergedConfig = { ...DEFAULT_CONFIG, ...config };
+    const dir = path.dirname(CONFIG_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(mergedConfig, null, 2), 'utf8');
     return mergedConfig;
   } catch (error) {
