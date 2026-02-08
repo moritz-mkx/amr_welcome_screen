@@ -20,7 +20,7 @@ const DEFAULT_CONFIG_BY_TYPE = {
 };
 
 const DEFAULT_SIZE_BY_TYPE = {
-  clock: { w: 6, h: 2 },
+  clock: { w: 6, h: 1 },
   date: { w: 6, h: 1 },
   text: { w: 6, h: 1 },
   image: { w: 4, h: 2 }
@@ -72,13 +72,23 @@ function WidgetEditor({ config, onSave }) {
 
   const layout = widgets.map(({ i, x, y, w, h }) => ({ i, x, y, w, h }));
 
-  const handleLayoutChange = useCallback((newLayout) => {
+  // Positionen nur bei echtem Drag/Resize aktualisieren (nicht bei onLayoutChange,
+  // da dieses auch beim initialen Rendern feuert und Positionen kompaktieren kann).
+  const applyLayoutFromGrid = useCallback((newLayout) => {
     setWidgets(prev => prev.map(w => {
       const item = newLayout.find(l => l.i === w.i);
       if (!item) return w;
       return { ...w, x: item.x, y: item.y, w: item.w, h: item.h };
     }));
   }, []);
+
+  const handleDragStop = useCallback((_layout, _oldItem, _newItem, _placeholder, _e, _node) => {
+    applyLayoutFromGrid(_layout);
+  }, [applyLayoutFromGrid]);
+
+  const handleResizeStop = useCallback((_layout, _oldItem, _newItem, _placeholder, _e, _node) => {
+    applyLayoutFromGrid(_layout);
+  }, [applyLayoutFromGrid]);
 
   const handleAddWidget = useCallback((type) => {
     const i = generateWidgetId();
@@ -149,7 +159,6 @@ function WidgetEditor({ config, onSave }) {
             <GridLayout
               className="widget-editor-grid"
               layout={layout}
-              onLayoutChange={handleLayoutChange}
               cols={COLS}
               rowHeight={rowHeight}
               width={containerSize.width}
@@ -159,6 +168,8 @@ function WidgetEditor({ config, onSave }) {
               isResizable
               compactType={null}
               preventCollision={false}
+              onDragStop={handleDragStop}
+              onResizeStop={handleResizeStop}
             >
               {widgets.map((widget) => (
                 <div
