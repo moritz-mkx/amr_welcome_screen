@@ -35,6 +35,7 @@ function WidgetEditor({ config, onSave }) {
   const [selectedId, setSelectedId] = useState(null);
   const [saving, setSaving] = useState(false);
   const [containerSize, setContainerSize] = useState({ width: 800, height: 450 });
+  const [bgColor, setBgColor] = useState(config.clockBackground ?? '#0d0d12');
   const previewRef = useRef(null);
 
   // Container messen und bei Resize aktualisieren
@@ -67,8 +68,9 @@ function WidgetEditor({ config, onSave }) {
     } else {
       setWidgets([]);
     }
+    setBgColor(config.clockBackground ?? '#0d0d12');
     setSelectedId(null);
-  }, [config.clockWidgets]);
+  }, [config.clockWidgets, config.clockBackground]);
 
   const layout = widgets.map(({ i, x, y, w, h }) => ({ i, x, y, w, h }));
 
@@ -127,7 +129,7 @@ function WidgetEditor({ config, onSave }) {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await configAPI.updateConfig({ clockWidgets: widgets });
+      await configAPI.updateConfig({ clockWidgets: widgets, clockBackground: bgColor });
       onSave?.();
       alert('Uhr-Screen gespeichert!');
     } catch (err) {
@@ -155,7 +157,7 @@ function WidgetEditor({ config, onSave }) {
           <div
             className="widget-editor-preview"
             ref={previewRef}
-            style={{ aspectRatio: '16/9' }}
+            style={{ aspectRatio: '16/9', background: bgColor }}
           >
             <GridLayout
               className="widget-editor-grid"
@@ -185,6 +187,16 @@ function WidgetEditor({ config, onSave }) {
               ))}
             </GridLayout>
           </div>
+        </div>
+        <div className="widget-editor-bg-picker">
+          <label>
+            <strong>Hintergrundfarbe</strong>
+          </label>
+          <input
+            type="color"
+            value={bgColor}
+            onChange={(e) => setBgColor(e.target.value)}
+          />
         </div>
         <div className="widget-editor-actions">
           <button

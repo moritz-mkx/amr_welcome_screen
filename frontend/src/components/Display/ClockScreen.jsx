@@ -11,9 +11,10 @@ function ClockScreen({ config = {} }) {
   const widgets = Array.isArray(config.clockWidgets) && config.clockWidgets.length > 0
     ? config.clockWidgets
     : FALLBACK_WIDGETS;
+  const bgColor = config.clockBackground ?? '#0d0d12';
 
   return (
-    <div className="clock-screen clock-screen-grid">
+    <div className="clock-screen clock-screen-grid" style={{ background: bgColor }}>
       {widgets.map((widget) => (
         <div
           key={widget.i}

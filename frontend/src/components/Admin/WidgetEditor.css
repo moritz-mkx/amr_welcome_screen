@@ -111,6 +111,29 @@
   font-size: 0.75rem;
 }
 
+.widget-editor-bg-picker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 900px;
+}
+
+.widget-editor-bg-picker label {
+  font-size: 0.85rem;
+  color: #444;
+  white-space: nowrap;
+}
+
+.widget-editor-bg-picker input[type="color"] {
+  width: 48px;
+  height: 32px;
+  padding: 2px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 .widget-editor-actions {
   display: flex;
   align-items: center;
