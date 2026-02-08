@@ -5,12 +5,14 @@ function Settings({ config, onUpdate }) {
   const [slideInterval, setSlideInterval] = useState(config.slideInterval || 5000);
   const [transitionDuration, setTransitionDuration] = useState(config.transitionDuration || 1000);
   const [emptyScreenMode, setEmptyScreenMode] = useState(config.emptyScreenMode || 'setup');
+  const [screenOrientation, setScreenOrientation] = useState(config.screenOrientation || 'landscape');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setSlideInterval(config.slideInterval || 5000);
     setTransitionDuration(config.transitionDuration || 1000);
     setEmptyScreenMode(config.emptyScreenMode || 'setup');
+    setScreenOrientation(config.screenOrientation || 'landscape');
   }, [config]);
 
   const handleSave = async () => {
@@ -19,7 +21,8 @@ function Settings({ config, onUpdate }) {
       await onUpdate({
         slideInterval: parseInt(slideInterval, 10),
         transitionDuration: parseInt(transitionDuration, 10),
-        emptyScreenMode
+        emptyScreenMode,
+        screenOrientation
       });
       alert('Einstellungen gespeichert!');
     } catch (error) {
@@ -39,6 +42,37 @@ function Settings({ config, onUpdate }) {
       <h2>Einstellungen</h2>
 
       <div className="settings-group">
+        <div className="setting-item">
+          <label>
+            <strong>Bildschirm-Orientierung</strong>
+          </label>
+          <p className="setting-description">
+            Legt fest, ob der Bildschirm im Quer- oder Hochformat betrieben wird. Das Grid im Uhr-Screen passt sich entsprechend an.
+          </p>
+          <div className="setting-radio-group">
+            <label className="setting-radio">
+              <input
+                type="radio"
+                name="screenOrientation"
+                value="landscape"
+                checked={screenOrientation === 'landscape'}
+                onChange={(e) => setScreenOrientation(e.target.value)}
+              />
+              <span>Querformat (16:9)</span>
+            </label>
+            <label className="setting-radio">
+              <input
+                type="radio"
+                name="screenOrientation"
+                value="portrait"
+                checked={screenOrientation === 'portrait'}
+                onChange={(e) => setScreenOrientation(e.target.value)}
+              />
+              <span>Hochformat (9:16)</span>
+            </label>
+          </div>
+        </div>
+
         <div className="setting-item">
           <label>
             <strong>Anzeige bei leerem Bildschirm</strong>

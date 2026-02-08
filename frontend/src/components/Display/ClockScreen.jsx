@@ -12,9 +12,13 @@ function ClockScreen({ config = {} }) {
     ? config.clockWidgets
     : FALLBACK_WIDGETS;
   const bgColor = config.clockBackground ?? '#0d0d12';
+  const orientation = config.screenOrientation ?? 'landscape';
 
   return (
-    <div className="clock-screen clock-screen-grid" style={{ background: bgColor }}>
+    <div
+      className={`clock-screen clock-screen-grid ${orientation === 'portrait' ? 'clock-screen-portrait' : ''}`}
+      style={{ background: bgColor }}
+    >
       {widgets.map((widget) => (
         <div
           key={widget.i}

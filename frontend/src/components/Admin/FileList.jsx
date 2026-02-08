@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { fileAPI } from '../../services/api';
 import './FileList.css';
 
-function FileList({ files, onDelete, onOrderChange }) {
+function FileList({ files, onDelete, onOrderChange, onToggleHidden }) {
   const [deletingId, setDeletingId] = useState(null);
 
   const handleDelete = async (fileId) => {
@@ -21,6 +21,18 @@ function FileList({ files, onDelete, onOrderChange }) {
       alert('Fehler beim Löschen der Datei');
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleToggleHidden = async (fileId) => {
+    try {
+      await fileAPI.toggleHidden(fileId);
+      if (onToggleHidden) {
+        onToggleHidden();
+      }
+    } catch (error) {
+      console.error('Fehler beim Umschalten der Sichtbarkeit:', error);
+      alert('Fehler beim Umschalten der Sichtbarkeit');
     }
   };
 
@@ -70,7 +82,7 @@ function FileList({ files, onDelete, onOrderChange }) {
         {files.map((file, index) => (
           <div
             key={file.id}
-            className="file-item"
+            className={`file-item ${file.hidden ? 'file-item-hidden' : ''}`}
             draggable
             onDragStart={(e) => handleDragStart(e, index)}
             onDragOver={handleDragOver}
@@ -88,6 +100,9 @@ function FileList({ files, onDelete, onOrderChange }) {
               <div className="file-preview-error" style={{ display: 'none' }}>
                 Vorschau nicht verfügbar
               </div>
+              {file.hidden && (
+                <div className="file-hidden-badge">Ausgeblendet</div>
+              )}
             </div>
             
             <div className="file-info">
@@ -101,15 +116,24 @@ function FileList({ files, onDelete, onOrderChange }) {
                 </span>
               </div>
             </div>
-            
-            <button
-              className="delete-button"
-              onClick={() => handleDelete(file.id)}
-              disabled={deletingId === file.id}
-              title="Datei löschen"
-            >
-              {deletingId === file.id ? '...' : '🗑️'}
-            </button>
+
+            <div className="file-actions">
+              <button
+                className={`toggle-hidden-button ${file.hidden ? 'is-hidden' : ''}`}
+                onClick={() => handleToggleHidden(file.id)}
+                title={file.hidden ? 'Einblenden' : 'Ausblenden'}
+              >
+                {file.hidden ? '👁️‍🗨️' : '👁️'}
+              </button>
+              <button
+                className="delete-button"
+                onClick={() => handleDelete(file.id)}
+                disabled={deletingId === file.id}
+                title="Datei löschen"
+              >
+                {deletingId === file.id ? '...' : '🗑️'}
+              </button>
+            </div>
           </div>
         ))}
       </div>

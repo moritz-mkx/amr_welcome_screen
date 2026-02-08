@@ -88,6 +88,24 @@ router.delete('/files/:id', (req, res) => {
 });
 
 /**
+ * PUT /api/files/:id/toggle-hidden
+ * Schaltet die Sichtbarkeit einer Datei um (ein-/ausblenden)
+ */
+router.put('/files/:id/toggle-hidden', (req, res) => {
+  try {
+    const file = fileService.getFileById(req.params.id);
+    if (!file) {
+      return res.status(404).json({ error: 'Datei nicht gefunden' });
+    }
+    const updated = fileService.updateFileMetadata(req.params.id, { hidden: !file.hidden });
+    res.json(updated);
+  } catch (error) {
+    console.error('Fehler beim Umschalten der Sichtbarkeit:', error);
+    res.status(500).json({ error: error.message || 'Fehler beim Umschalten der Sichtbarkeit' });
+  }
+});
+
+/**
  * PUT /api/files/order
  * Aktualisiert die Reihenfolge der Dateien
  */

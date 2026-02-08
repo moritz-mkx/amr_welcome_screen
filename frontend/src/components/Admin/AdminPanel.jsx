@@ -109,6 +109,7 @@ function AdminPanel() {
               files={files}
               onDelete={handleFileDeleted}
               onOrderChange={handleFileOrderChanged}
+              onToggleHidden={loadData}
             />
           </div>
         )}

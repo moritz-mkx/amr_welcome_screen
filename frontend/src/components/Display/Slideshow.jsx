@@ -27,7 +27,7 @@ function Slideshow() {
         configAPI.getConfig()
       ]);
       
-      setFiles(filesData);
+      setFiles(filesData.filter(f => !f.hidden));
       setConfig(configData);
       setLoading(false);
     } catch (error) {

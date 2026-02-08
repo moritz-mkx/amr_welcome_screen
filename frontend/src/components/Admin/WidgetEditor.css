@@ -35,6 +35,10 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
+.widget-editor-preview-portrait {
+  max-width: 360px;
+}
+
 .widget-editor-grid {
   background: transparent;
 }
@@ -109,6 +113,21 @@
 .widget-editor-cell-inner .grid-widget-image-error {
   color: #606070;
   font-size: 0.75rem;
+}
+
+.widget-editor-orientation-hint {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 900px;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.widget-editor-orientation-hint-sub {
+  font-size: 0.8rem;
+  color: #888;
 }
 
 .widget-editor-bg-picker {

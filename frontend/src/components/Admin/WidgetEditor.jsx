@@ -36,6 +36,8 @@ function WidgetEditor({ config, onSave }) {
   const [saving, setSaving] = useState(false);
   const [containerSize, setContainerSize] = useState({ width: 800, height: 450 });
   const [bgColor, setBgColor] = useState(config.clockBackground ?? '#0d0d12');
+  const orientation = config.screenOrientation ?? 'landscape';
+  const aspectRatio = orientation === 'portrait' ? '9/16' : '16/9';
   const previewRef = useRef(null);
 
   // Container messen und bei Resize aktualisieren
@@ -155,9 +157,9 @@ function WidgetEditor({ config, onSave }) {
       <div className="widget-editor-main">
         <div className="widget-editor-preview-wrap">
           <div
-            className="widget-editor-preview"
+            className={`widget-editor-preview ${orientation === 'portrait' ? 'widget-editor-preview-portrait' : ''}`}
             ref={previewRef}
-            style={{ aspectRatio: '16/9', background: bgColor }}
+            style={{ aspectRatio, background: bgColor }}
           >
             <GridLayout
               className="widget-editor-grid"
@@ -187,6 +189,10 @@ function WidgetEditor({ config, onSave }) {
               ))}
             </GridLayout>
           </div>
+        </div>
+        <div className="widget-editor-orientation-hint">
+          <span>Orientierung: <strong>{orientation === 'portrait' ? 'Hochformat (9:16)' : 'Querformat (16:9)'}</strong></span>
+          <span className="widget-editor-orientation-hint-sub">Umschalten unter <em>Einstellungen</em></span>
         </div>
         <div className="widget-editor-bg-picker">
           <label>

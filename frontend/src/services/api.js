@@ -51,6 +51,14 @@ export const fileAPI = {
   },
 
   /**
+   * Schaltet die Sichtbarkeit einer Datei um
+   */
+  toggleHidden: async (fileId) => {
+    const response = await api.put(`/files/${fileId}/toggle-hidden`);
+    return response.data;
+  },
+
+  /**
    * Aktualisiert die Reihenfolge der Dateien
    */
   updateFileOrder: async (fileIds) => {

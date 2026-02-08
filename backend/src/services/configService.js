@@ -15,6 +15,7 @@ const DEFAULT_CONFIG = {
   dateFontSize: 42,
   logoMaxWidth: 320,
   logoMaxHeight: 120,
+  screenOrientation: 'landscape',
   clockBackground: '#0d0d12',
   clockWidgets: [
     { i: 'widget-logo', type: 'image', x: 4, y: 1, w: 4, h: 2, config: { src: 'logo', objectFit: 'contain' } },
