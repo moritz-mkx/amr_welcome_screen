@@ -143,6 +143,27 @@ router.put('/config', (req, res) => {
  * GET /api/system/ip
  * Gibt die IP-Adresse(n) des Rechners zurück (für Einrichtungs-Anzeige)
  */
+/**
+ * GET /api/logo
+ * Liefert das hochgeladene Logo für die Uhr-Anzeige
+ */
+router.get('/logo', (req, res) => {
+  try {
+    const logoPath = configService.getLogoPath();
+    if (!logoPath || !fs.existsSync(logoPath)) {
+      return res.status(404).end();
+    }
+    res.sendFile(path.resolve(logoPath));
+  } catch (error) {
+    console.error('Fehler beim Abrufen des Logos:', error);
+    res.status(404).end();
+  }
+});
+
+/**
+ * GET /api/system/ip
+ * Gibt die IP-Adresse(n) des Rechners zurück (für Einrichtungs-Anzeige)
+ */
 router.get('/system/ip', (req, res) => {
   try {
     const interfaces = os.networkInterfaces();

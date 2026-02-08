@@ -2,14 +2,16 @@ const fs = require('fs');
 const path = require('path');
 
 const CONFIG_FILE = path.join(__dirname, '../../config.json');
+const LOGO_DIR = path.join(__dirname, '../../static');
 
 // Standard-Konfiguration
 const DEFAULT_CONFIG = {
   slideInterval: 5000,
   transitionDuration: 1000,
   transitionType: 'fade',
-  // 'setup' = Anleitung mit IP anzeigen wenn keine Bilder; 'clock' = Uhr + Datum anzeigen
-  emptyScreenMode: 'setup'
+  emptyScreenMode: 'setup',
+  timeFontSize: 160,
+  dateFontSize: 42
 };
 
 /**
@@ -58,9 +60,25 @@ function updateConfig(updates) {
   return saveConfig(updatedConfig);
 }
 
+/**
+ * Gibt den Pfad zur Logo-Datei zurück, falls vorhanden
+ */
+function getLogoPath() {
+  try {
+    if (!fs.existsSync(LOGO_DIR)) return null;
+    const files = fs.readdirSync(LOGO_DIR);
+    const logo = files.find(f => f.startsWith('logo.'));
+    return logo ? path.join(LOGO_DIR, logo) : null;
+  } catch {
+    return null;
+  }
+}
+
 module.exports = {
   loadConfig,
   saveConfig,
   updateConfig,
-  DEFAULT_CONFIG
+  DEFAULT_CONFIG,
+  LOGO_DIR,
+  getLogoPath
 };

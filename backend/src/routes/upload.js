@@ -1,9 +1,11 @@
 const express = require('express');
-const router = express.Router();
-const upload = require('../middleware/upload');
-const fileService = require('../services/fileService');
-const pdfConverter = require('../services/pdfConverter');
+const fs = require('fs');
 const path = require('path');
+const router = express.Router();
+const { upload, uploadLogo } = require('../middleware/upload');
+const fileService = require('../services/fileService');
+const configService = require('../services/configService');
+const pdfConverter = require('../services/pdfConverter');
 
 /**
  * POST /api/upload
@@ -68,6 +70,32 @@ router.post('/upload', upload.single('file'), async (req, res) => {
   } catch (error) {
     console.error('Fehler beim Hochladen:', error);
     res.status(500).json({ error: error.message || 'Fehler beim Hochladen der Datei' });
+  }
+});
+
+/**
+ * POST /api/config/logo
+ * Lädt das Logo für die Uhr-Anzeige hoch (ein Bild, ersetzt das bisherige)
+ */
+router.post('/config/logo', uploadLogo.single('logo'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Keine Datei hochgeladen' });
+    }
+    const dir = configService.LOGO_DIR;
+    if (fs.existsSync(dir)) {
+      const files = fs.readdirSync(dir);
+      const currentName = path.basename(req.file.path);
+      files.forEach(f => {
+        if (f.startsWith('logo.') && f !== currentName) {
+          try { fs.unlinkSync(path.join(dir, f)); } catch {}
+        }
+      });
+    }
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Fehler beim Logo-Upload:', error);
+    res.status(500).json({ error: error.message || 'Fehler beim Logo-Upload' });
   }
 });
 

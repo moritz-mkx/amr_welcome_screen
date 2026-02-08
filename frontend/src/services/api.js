@@ -91,7 +91,22 @@ export const configAPI = {
   updateConfig: async (updates) => {
     const response = await api.put('/config', updates);
     return response.data;
-  }
+  },
+
+  /**
+   * Lädt das Logo für die Uhr-Anzeige hoch
+   */
+  uploadLogo: async (file) => {
+    const formData = new FormData();
+    formData.append('logo', file);
+    const response = await api.post('/config/logo', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  },
+
+  /** URL des Logos (für Vorschau, mit Cache-Buster) */
+  getLogoUrl: () => getApiBaseUrl() + '/logo'
 };
 
 /**

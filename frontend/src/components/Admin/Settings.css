@@ -105,6 +105,33 @@
   accent-color: #4a9eff;
 }
 
+.setting-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.setting-logo-input {
+  font-size: 14px;
+}
+
+.setting-logo-status {
+  color: #666;
+  font-size: 14px;
+}
+
+.setting-logo-preview {
+  margin-top: 12px;
+  min-height: 48px;
+}
+
+.setting-logo-img {
+  max-width: 200px;
+  max-height: 80px;
+  object-fit: contain;
+}
+
 .settings-actions {
   margin-top: 32px;
   padding-top: 24px;

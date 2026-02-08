@@ -8,13 +8,19 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-top: min(18vh, 180px);
+  padding-top: min(8vh, 80px);
   background: linear-gradient(180deg, #0d0d12 0%, #1a1a24 100%);
   color: #f0f0f5;
 }
 
+.clock-logo {
+  max-width: min(320px, 70vw);
+  max-height: min(120px, 18vh);
+  object-fit: contain;
+  margin-bottom: 24px;
+}
+
 .clock-time {
-  font-size: clamp(4rem, 15vw, 10rem);
   font-weight: 300;
   letter-spacing: 0.02em;
   line-height: 1.1;
@@ -23,7 +29,6 @@
 }
 
 .clock-date {
-  font-size: clamp(1.25rem, 4vw, 2.25rem);
   font-weight: 400;
   color: #a0a0b0;
   margin-top: 24px;

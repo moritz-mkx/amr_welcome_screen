@@ -8,7 +8,7 @@ import './Slideshow.css';
 function Slideshow() {
   const [files, setFiles] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [config, setConfig] = useState({ slideInterval: 5000, transitionDuration: 1000, emptyScreenMode: 'setup' });
+  const [config, setConfig] = useState({ slideInterval: 5000, transitionDuration: 1000, emptyScreenMode: 'setup', timeFontSize: 160, dateFontSize: 42 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -57,7 +57,7 @@ function Slideshow() {
   if (files.length === 0) {
     const emptyMode = config.emptyScreenMode || 'setup';
     if (emptyMode === 'clock') {
-      return <ClockScreen />;
+      return <ClockScreen config={config} />;
     }
     return <SetupGuide />;
   }

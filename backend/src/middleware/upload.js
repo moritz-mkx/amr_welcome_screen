@@ -1,6 +1,8 @@
+const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
 const fileService = require('../services/fileService');
+const configService = require('../services/configService');
 
 // Erlaubte Dateitypen
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
@@ -44,4 +46,30 @@ const upload = multer({
   }
 });
 
+// Logo-Upload: ein Bild, gespeichert als static/logo.<ext>
+const logoStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = configService.LOGO_DIR;
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || (file.mimetype === 'image/png' ? '.png' : '.jpg');
+    cb(null, 'logo' + ext);
+  }
+});
+
+const uploadLogo = multer({
+  storage: logoStorage,
+  fileFilter: (req, file, cb) => {
+    if (ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Nur Bilder (JPG, PNG, GIF, WEBP) erlaubt.'), false);
+    }
+  },
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
+
 module.exports = upload;
+module.exports.uploadLogo = uploadLogo;

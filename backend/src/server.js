@@ -1,9 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const apiRoutes = require('./routes/api');
 const uploadRoutes = require('./routes/upload');
 const fileService = require('./services/fileService');
+const configService = require('./services/configService');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -28,9 +30,8 @@ if (require('fs').existsSync(frontendDist)) {
   });
 }
 
-// Stelle sicher, dass Upload-Verzeichnisse existieren
-[fileService.UPLOADS_DIR, fileService.CONVERTED_DIR].forEach(dir => {
-  const fs = require('fs');
+// Stelle sicher, dass Upload- und Logo-Verzeichnisse existieren
+[fileService.UPLOADS_DIR, fileService.CONVERTED_DIR, configService.LOGO_DIR].forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }

@@ -19,8 +19,12 @@ function formatDate(date) {
   });
 }
 
-function ClockScreen() {
+function ClockScreen({ config = {} }) {
   const [now, setNow] = useState(new Date());
+  const [logoOk, setLogoOk] = useState(false);
+
+  const timeFontSize = config.timeFontSize ?? 160;
+  const dateFontSize = config.dateFontSize ?? 42;
 
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
@@ -29,8 +33,26 @@ function ClockScreen() {
 
   return (
     <div className="clock-screen">
-      <div className="clock-time">{formatTime(now)}</div>
-      <div className="clock-date">{formatDate(now)}</div>
+      <img
+        className="clock-logo"
+        src="/api/logo"
+        alt=""
+        onLoad={() => setLogoOk(true)}
+        onError={() => setLogoOk(false)}
+        style={{ display: logoOk ? 'block' : 'none' }}
+      />
+      <div
+        className="clock-time"
+        style={{ fontSize: `${timeFontSize}px` }}
+      >
+        {formatTime(now)}
+      </div>
+      <div
+        className="clock-date"
+        style={{ fontSize: `${dateFontSize}px` }}
+      >
+        {formatDate(now)}
+      </div>
     </div>
   );
 }

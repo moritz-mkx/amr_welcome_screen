@@ -7,7 +7,7 @@ import './AdminPanel.css';
 
 function AdminPanel() {
   const [files, setFiles] = useState([]);
-  const [config, setConfig] = useState({ slideInterval: 5000, transitionDuration: 1000 });
+  const [config, setConfig] = useState({ slideInterval: 5000, transitionDuration: 1000, timeFontSize: 160, dateFontSize: 42 });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('files');
 
