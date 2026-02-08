@@ -17,7 +17,7 @@ const DEFAULT_CONFIG = {
   logoMaxHeight: 120,
   clockWidgets: [
     { i: 'widget-logo', type: 'image', x: 4, y: 1, w: 4, h: 2, config: { src: 'logo', objectFit: 'contain' } },
-    { i: 'widget-clock', type: 'clock', x: 3, y: 4, w: 6, h: 2, config: { fontSize: 160, color: '#f0f0f5', showSeconds: true } },
+    { i: 'widget-clock', type: 'clock', x: 3, y: 4, w: 6, h: 1, config: { fontSize: 160, color: '#f0f0f5', showSeconds: true } },
     { i: 'widget-date', type: 'date', x: 3, y: 7, w: 6, h: 1, config: { fontSize: 42, color: '#a0a0b0', format: 'long' } }
   ]
 };

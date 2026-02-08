@@ -20,7 +20,7 @@ const DEFAULT_CONFIG_BY_TYPE = {
 };
 
 const DEFAULT_SIZE_BY_TYPE = {
-  clock: { w: 6, h: 2 },
+  clock: { w: 6, h: 1 },
   date: { w: 6, h: 1 },
   text: { w: 6, h: 1 },
   image: { w: 4, h: 2 }
