@@ -149,9 +149,18 @@ router.get('/system/ip', (req, res) => {
     const ips = [];
     for (const name of Object.keys(interfaces)) {
       for (const iface of interfaces[name]) {
-        if (iface.family === 'IPv4' && !iface.internal) {
+        // Node liefert family teils als 'IPv4' (String), teils als 4 (Zahl)
+        const isIPv4 = iface.family === 'IPv4' || iface.family === 4;
+        if (isIPv4 && !iface.internal) {
           ips.push(iface.address);
         }
+      }
+    }
+    // Fallback: Wenn keine IP gefunden (z. B. nur lo), Adresse der Server-Socket nutzen
+    if (ips.length === 0 && req.socket && req.socket.localAddress) {
+      const addr = req.socket.localAddress;
+      if (addr && addr !== '127.0.0.1' && addr !== '::' && addr !== '::1') {
+        ips.push(addr);
       }
     }
     res.json({ ips: ips.length ? ips : null });
