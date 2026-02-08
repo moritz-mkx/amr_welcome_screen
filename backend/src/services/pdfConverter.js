@@ -1,42 +1,42 @@
-const pdf = require('pdf-poppler');
+const { execFile } = require('child_process');
+const { promisify } = require('util');
 const path = require('path');
 const fs = require('fs');
 const fileService = require('./fileService');
 
+const execFileAsync = promisify(execFile);
+
 /**
- * Konvertiert die erste Seite eines PDFs zu einem Bild
+ * Konvertiert die erste Seite eines PDFs zu einem Bild mit pdftoppm (poppler-utils).
+ * Funktioniert auf Linux (Raspberry Pi); das npm-Paket pdf-poppler unterstützt Linux nicht.
  * @param {string} pdfPath - Pfad zur PDF-Datei
  * @param {string} outputPath - Pfad für das Ausgabebild
  * @returns {Promise<string>} - Pfad zum konvertierten Bild
  */
 async function convertPdfFirstPage(pdfPath, outputPath) {
-  try {
-    const options = {
-      format: 'png',
-      out_dir: path.dirname(outputPath),
-      out_prefix: path.basename(outputPath, path.extname(outputPath)),
-      page: 1 // Nur erste Seite
-    };
+  const outDir = path.dirname(outputPath);
+  const prefix = path.basename(outputPath, path.extname(outputPath));
 
-    await pdf.convert(pdfPath, options);
-    
-    // pdf-poppler erstellt Dateien mit Suffix, finde die erstellte Datei
-    const dir = path.dirname(outputPath);
-    const prefix = path.basename(outputPath, path.extname(outputPath));
-    const files = fs.readdirSync(dir);
-    const convertedFile = files.find(f => f.startsWith(prefix) && f.endsWith('.png'));
-    
-    if (!convertedFile) {
+  try {
+    await execFileAsync('pdftoppm', [
+      '-png',
+      '-f', '1',
+      '-l', '1',
+      pdfPath,
+      path.join(outDir, prefix)
+    ], { maxBuffer: 10 * 1024 * 1024 });
+
+    // pdftoppm erzeugt <prefix>-1.png
+    const generatedPath = path.join(outDir, `${prefix}-1.png`);
+
+    if (!fs.existsSync(generatedPath)) {
       throw new Error('Konvertierte Datei nicht gefunden');
     }
-    
-    const fullPath = path.join(dir, convertedFile);
-    
-    // Wenn der Ausgabepfad anders ist, benenne die Datei um
-    if (fullPath !== outputPath) {
-      fs.renameSync(fullPath, outputPath);
+
+    if (generatedPath !== outputPath) {
+      fs.renameSync(generatedPath, outputPath);
     }
-    
+
     return outputPath;
   } catch (error) {
     console.error('Fehler bei PDF-Konvertierung:', error);
@@ -53,7 +53,7 @@ async function convertPdfFirstPage(pdfPath, outputPath) {
 async function convertPdfToImage(pdfPath, originalFilename) {
   const filename = path.basename(originalFilename, path.extname(originalFilename));
   const outputPath = path.join(fileService.CONVERTED_DIR, `${filename}_page1.png`);
-  
+
   return await convertPdfFirstPage(pdfPath, outputPath);
 }
 
