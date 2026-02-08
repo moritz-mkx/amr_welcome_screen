@@ -25,6 +25,8 @@ function ClockScreen({ config = {} }) {
 
   const timeFontSize = config.timeFontSize ?? 160;
   const dateFontSize = config.dateFontSize ?? 42;
+  const logoMaxWidth = config.logoMaxWidth ?? 320;
+  const logoMaxHeight = config.logoMaxHeight ?? 120;
 
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
@@ -39,7 +41,11 @@ function ClockScreen({ config = {} }) {
         alt=""
         onLoad={() => setLogoOk(true)}
         onError={() => setLogoOk(false)}
-        style={{ display: logoOk ? 'block' : 'none' }}
+        style={{
+          display: logoOk ? 'block' : 'none',
+          maxWidth: `${logoMaxWidth}px`,
+          maxHeight: `${logoMaxHeight}px`
+        }}
       />
       <div
         className="clock-time"

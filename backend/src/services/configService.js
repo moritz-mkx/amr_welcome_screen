@@ -11,7 +11,9 @@ const DEFAULT_CONFIG = {
   transitionType: 'fade',
   emptyScreenMode: 'setup',
   timeFontSize: 160,
-  dateFontSize: 42
+  dateFontSize: 42,
+  logoMaxWidth: 320,
+  logoMaxHeight: 120
 };
 
 /**

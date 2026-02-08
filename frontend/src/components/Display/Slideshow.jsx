@@ -8,7 +8,7 @@ import './Slideshow.css';
 function Slideshow() {
   const [files, setFiles] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [config, setConfig] = useState({ slideInterval: 5000, transitionDuration: 1000, emptyScreenMode: 'setup', timeFontSize: 160, dateFontSize: 42 });
+  const [config, setConfig] = useState({ slideInterval: 5000, transitionDuration: 1000, emptyScreenMode: 'setup', timeFontSize: 160, dateFontSize: 42, logoMaxWidth: 320, logoMaxHeight: 120 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

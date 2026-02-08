@@ -8,6 +8,8 @@ function Settings({ config, onUpdate }) {
   const [emptyScreenMode, setEmptyScreenMode] = useState(config.emptyScreenMode || 'setup');
   const [timeFontSize, setTimeFontSize] = useState(config.timeFontSize ?? 160);
   const [dateFontSize, setDateFontSize] = useState(config.dateFontSize ?? 42);
+  const [logoMaxWidth, setLogoMaxWidth] = useState(config.logoMaxWidth ?? 320);
+  const [logoMaxHeight, setLogoMaxHeight] = useState(config.logoMaxHeight ?? 120);
   const [saving, setSaving] = useState(false);
   const [logoUploading, setLogoUploading] = useState(false);
   const [logoKey, setLogoKey] = useState(0);
@@ -19,6 +21,8 @@ function Settings({ config, onUpdate }) {
     setEmptyScreenMode(config.emptyScreenMode || 'setup');
     setTimeFontSize(config.timeFontSize ?? 160);
     setDateFontSize(config.dateFontSize ?? 42);
+    setLogoMaxWidth(config.logoMaxWidth ?? 320);
+    setLogoMaxHeight(config.logoMaxHeight ?? 120);
   }, [config]);
 
   const handleSave = async () => {
@@ -29,7 +33,9 @@ function Settings({ config, onUpdate }) {
         transitionDuration: parseInt(transitionDuration, 10),
         emptyScreenMode,
         timeFontSize: parseInt(timeFontSize, 10),
-        dateFontSize: parseInt(dateFontSize, 10)
+        dateFontSize: parseInt(dateFontSize, 10),
+        logoMaxWidth: parseInt(logoMaxWidth, 10),
+        logoMaxHeight: parseInt(logoMaxHeight, 10)
       });
       alert('Einstellungen gespeichert!');
     } catch (error) {
@@ -121,6 +127,40 @@ function Settings({ config, onUpdate }) {
               onError={(e) => { e.target.style.display = 'none'; }}
               className="setting-logo-img"
             />
+          </div>
+          <label htmlFor="logoMaxWidth">
+            <strong>Logo: maximale Breite</strong>
+            <span className="setting-value">{logoMaxWidth} px</span>
+          </label>
+          <input
+            id="logoMaxWidth"
+            type="range"
+            min="80"
+            max="600"
+            step="20"
+            value={logoMaxWidth}
+            onChange={(e) => setLogoMaxWidth(Number(e.target.value))}
+          />
+          <div className="setting-range-labels">
+            <span>80 px</span>
+            <span>600 px</span>
+          </div>
+          <label htmlFor="logoMaxHeight">
+            <strong>Logo: maximale Höhe</strong>
+            <span className="setting-value">{logoMaxHeight} px</span>
+          </label>
+          <input
+            id="logoMaxHeight"
+            type="range"
+            min="40"
+            max="300"
+            step="10"
+            value={logoMaxHeight}
+            onChange={(e) => setLogoMaxHeight(Number(e.target.value))}
+          />
+          <div className="setting-range-labels">
+            <span>40 px</span>
+            <span>300 px</span>
           </div>
         </div>
 
