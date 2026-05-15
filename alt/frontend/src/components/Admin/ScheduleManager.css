@@ -1,0 +1,276 @@
+.schedule-manager h2 {
+  margin: 0 0 8px;
+  color: #333;
+}
+
+.schedule-manager .hint {
+  color: #666;
+  margin-bottom: 24px;
+}
+
+.schedule-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: flex-start;
+}
+
+@media (max-width: 900px) {
+  .schedule-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.schedule-form-section,
+.schedule-list-section,
+.schedule-week-overview {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.schedule-week-overview {
+  margin-top: 24px;
+}
+
+.schedule-form-section h3,
+.schedule-list-section h3,
+.schedule-week-overview h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.schedule-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.schedule-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: #444;
+}
+
+.schedule-form label.inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.schedule-form input[type="text"],
+.schedule-form input[type="time"],
+.schedule-form input[type="date"],
+.schedule-form input[type="number"],
+.schedule-form select {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background: #fff;
+}
+
+.schedule-form .row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.weekday-picker {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.weekday-picker legend {
+  font-size: 13px;
+  color: #555;
+  padding: 0 4px;
+}
+
+.weekday-option {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.form-error {
+  background: #fee;
+  border: 1px solid #f5b5b5;
+  color: #b00020;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.form-actions button {
+  padding: 9px 16px;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.form-actions button.primary {
+  background: #4a9eff;
+  border-color: #4a9eff;
+  color: #fff;
+}
+
+.form-actions button.primary:hover {
+  background: #3b8be0;
+}
+
+.schedule-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.schedule-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid #e3e3e3;
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+.schedule-item.disabled {
+  opacity: 0.55;
+}
+
+.schedule-item-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.schedule-item-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.schedule-item-title .time {
+  color: #4a9eff;
+  font-variant-numeric: tabular-nums;
+}
+
+.schedule-item-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  color: #666;
+}
+
+.schedule-item-meta .file-ref.missing {
+  color: #b00020;
+}
+
+.schedule-item-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.schedule-item-actions button {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.schedule-item-actions button.danger {
+  border-color: #e0a4a4;
+  color: #b00020;
+}
+
+.empty {
+  color: #888;
+}
+
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .week-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.week-day {
+  background: #fff;
+  border: 1px solid #e3e3e3;
+  border-radius: 6px;
+  padding: 10px;
+  min-height: 90px;
+}
+
+.week-day-header {
+  font-weight: 600;
+  font-size: 13px;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.week-day-empty {
+  color: #bbb;
+  font-size: 12px;
+}
+
+.week-day ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.week-day li {
+  font-size: 12px;
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.week-day .slot-time {
+  color: #4a9eff;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.week-day .slot-name {
+  color: #444;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

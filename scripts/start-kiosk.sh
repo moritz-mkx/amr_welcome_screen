@@ -3,8 +3,9 @@
 # Startet Chromium im Kiosk-Modus für den Welcome Screen
 # Die URL wird als Parameter übergeben oder verwendet den Standardwert
 
-# Standard-URL (anpassen falls nötig)
-DEFAULT_URL="http://localhost:3000/display"
+# Standard-URL (anpassen falls nötig).
+# PHP-Version: die Display-Seite ist die Root-URL des Apache-Vhosts.
+DEFAULT_URL="http://localhost/"
 
 # URL aus Parameter oder Standard verwenden
 URL=${1:-$DEFAULT_URL}

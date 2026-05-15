@@ -1,12 +1,39 @@
-node_modules/
-dist/
-build/
-backend/uploads/
-backend/converted/
-static/
-backend/config.json
-backend/files-metadata.json
+# --- Allgemein ---
 *.log
 .DS_Store
 .env
 logs/
+
+# --- PHP-System ---
+# Laufzeit-Daten: niemals committen (entstehen erst nach Migration / im Betrieb)
+data/*.json
+data/*.json.bak
+data/.locks/
+
+# Hochgeladene/konvertierte Mediendateien: nicht ins Repo
+public/media/uploads/*
+public/media/converted/*
+public/media/static/*
+# Strukturplatzhalter aber behalten
+!public/media/uploads/.gitkeep
+!public/media/converted/.gitkeep
+!public/media/static/.gitkeep
+!public/media/static/widgets/
+!public/media/static/widgets/.gitkeep
+
+# Apache-spezifisch
+.htaccess.local
+
+# --- Legacy-System (alt/) ---
+# Node-/React-Reste werden nicht mehr genutzt, aber als Referenz aufbewahrt.
+# Wir ignorieren hier nur die typischen "schmutzigen" Verzeichnisse;
+# der Sourcecode selbst bleibt versioniert.
+alt/**/node_modules/
+alt/**/dist/
+alt/**/build/
+alt/backend/uploads/
+alt/backend/converted/
+alt/backend/static/
+alt/backend/config.json
+alt/backend/files-metadata.json
+alt/backend/schedules.json

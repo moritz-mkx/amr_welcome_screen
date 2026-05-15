@@ -1,0 +1,37 @@
+---
+description: Konvention zur Archivierung von Chats als Context-Dateien
+alwaysApply: true
+---
+
+# Chat-Archivierung
+
+Chat-Transkripte werden im Ordner `context/` als Markdown-Dateien abgelegt, damit das Wissen und die Entscheidungen aus früheren Sessions wiederverwendbar bleiben.
+
+## Dateiname
+
+```
+context/chat_<YYYY-MM-DD>_<kurzer-slug>.md
+```
+
+Beispiele:
+- `context/chat_2025-02-24_xampp-windows-vm-kompatibilitaet.md`
+- `context/chat_2026-03-25_chats-als-context-speichern.md`
+
+## Inhalt
+
+Jede Datei enthält den vollständigen Chatverlauf mit:
+
+- Titel (`# Chat: <Thema>`)
+- Metadaten: `**Chat-ID:**` und `**Datum:**`
+- Alle Nachrichten als `## User` / `## Assistant`-Abschnitte
+
+## Bestehende Archive
+
+Bekannte Themen aus `context/`:
+
+1. **XAMPP / Windows-VM-Kompatibilität** (2025-02-24) – siehe Rule `project-overview` für die Zusammenfassung.
+2. **Chats als Context-Dateien speichern** (2026-03-25) – Etablierung dieser Konvention.
+
+## Neue Chats hinzufügen
+
+Wenn ein Chat archivierungswürdiges Wissen enthält (Architektur-Entscheidungen, Setup-Hinweise, Workarounds), als neue Datei in `context/` ablegen und ggf. eine bestehende Rule erweitern oder eine neue Rule unter `.cursor/rules/` anlegen.

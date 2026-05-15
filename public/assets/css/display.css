@@ -1,0 +1,245 @@
+/**
+ * Display-Stylesheet.
+ *
+ * Konsolidiert die folgenden React-CSS-Module aus dem alten Frontend:
+ *   - Slideshow.css
+ *   - SlideItem.css  (bisher leer; alle Regeln in Slideshow.css)
+ *   - ClockScreen.css
+ *   - SetupGuide.css
+ *   - index.css (Reset)
+ *
+ * Wird ausschliesslich von public/index.php geladen. Fuer das Admin-Panel
+ * (Etappe 4) entsteht ein eigenes Stylesheet.
+ */
+
+/* --- Reset (aus frontend/src/index.css) --------------------------------- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  height: 100vh;
+  background: #000;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+               'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+#display-root {
+  width: 100%;
+  height: 100vh;
+}
+
+/* --- Slideshow (Slideshow.css) ------------------------------------------ */
+.slideshow-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  overflow: hidden;
+  background-color: #000;
+}
+
+.slide-item {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.slide-item.active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+.slide-image,
+.slide-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  background-color: #000;
+}
+
+.loading,
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background-color: #1a1a1a;
+}
+
+.loading-spinner {
+  font-size: 24px;
+}
+
+/* --- ClockScreen (ClockScreen.css) -------------------------------------- */
+.clock-screen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: linear-gradient(180deg, #0d0d12 0%, #1a1a24 100%);
+  color: #f0f0f5;
+}
+
+.clock-screen-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(12, 1fr);
+  width: 100%; height: 100%;
+  gap: 4px;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+.clock-screen-cell {
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.clock-screen-cell-inner {
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* Widget-Inhalte */
+.clock-screen .grid-widget-clock,
+.clock-screen .grid-widget-date {
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock-screen .grid-widget-text {
+  width: 100%;
+  word-break: break-word;
+}
+
+.clock-screen .grid-widget-image {
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.clock-screen .grid-widget-image img,
+.clock-screen .grid-widget-image video {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.clock-screen .grid-widget-image-placeholder,
+.clock-screen .grid-widget-image-error {
+  color: #606070;
+  font-size: 0.9rem;
+}
+
+.clock-screen .grid-widget-image-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.3);
+}
+
+/* --- SetupGuide (SetupGuide.css) ---------------------------------------- */
+.setup-guide {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+  color: #e8e8e8;
+  overflow: auto;
+}
+
+.setup-guide-content {
+  text-align: left;
+  max-width: 560px;
+  padding: 48px 32px;
+}
+
+.setup-guide h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.setup-intro {
+  font-size: 17px;
+  color: #b8b8c4;
+  margin-bottom: 24px;
+}
+
+.setup-steps {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #ccc;
+  margin-bottom: 28px;
+  padding-left: 22px;
+}
+
+.setup-steps li {
+  margin-bottom: 10px;
+}
+
+.setup-ip-box {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+
+.setup-ip-box.setup-ip-wait {
+  border-color: rgba(255, 200, 100, 0.3);
+  background: rgba(255, 200, 100, 0.06);
+}
+
+.setup-ip-label {
+  display: block;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8a8a9a;
+  margin-bottom: 8px;
+}
+
+.setup-ip-link {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  color: #5ba3ff;
+  text-decoration: none;
+  word-break: break-all;
+  margin-bottom: 8px;
+}
+
+.setup-ip-link:hover {
+  text-decoration: underline;
+}
+
+.setup-ip-hint {
+  font-size: 14px;
+  color: #9a9aaa;
+}
+
+.setup-footer {
+  font-size: 14px;
+  color: #7a7a8a;
+}

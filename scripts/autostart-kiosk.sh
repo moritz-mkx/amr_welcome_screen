@@ -4,10 +4,11 @@
 # Dieses Script kann in der Autostart-Konfiguration des Raspberry Pi verwendet werden
 # z.B. in ~/.config/autostart/welcome-screen.desktop oder in /etc/xdg/autostart/
 
-# Warte bis der Server läuft (maximal 60 Sekunden)
+# Warte bis der Server läuft (maximal 60 Sekunden).
+# PHP-Version: Apache liefert die Display-Seite unter http://localhost/.
 MAX_WAIT=60
 WAIT_COUNT=0
-URL="http://localhost:3000/display"
+URL="http://localhost/"
 
 while [ $WAIT_COUNT -lt $MAX_WAIT ]; do
     if curl -s "$URL" > /dev/null 2>&1; then

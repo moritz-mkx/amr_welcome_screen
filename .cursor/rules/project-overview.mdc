@@ -1,0 +1,31 @@
+---
+description: Projekt-Überblick, Tech-Stack und Deployment-Hinweise (inkl. Windows-VM)
+alwaysApply: true
+---
+
+# AMR Welcome Screen – Projekt-Überblick
+
+## Tech-Stack
+
+- **Backend:** Node.js + Express (`backend/src/server.js`)
+- **Frontend:** React + Vite – wird zu statischen Dateien gebaut und vom Node-Backend ausgeliefert
+- **Prozess-Management:** PM2 (`scripts/pm2-ecosystem.config.js`)
+- **Kiosk-Modus:** Linux-/Raspberry-Pi-Skripte (`start-kiosk.sh`, `autostart-kiosk.sh`)
+- **PDF-Konvertierung:** `pdf-poppler` + `poppler-utils` (Linux/Raspberry Pi out-of-the-box)
+
+## Ziel-Plattform
+
+Primär **Raspberry Pi** im Kiosk-Modus. Andere Plattformen sind möglich, aber nicht out-of-the-box.
+
+## Deployment auf Windows-VM (z. B. parallel zu XAMPP)
+
+Die Anwendung läuft **nicht in XAMPP** (kein PHP/Apache-Stack), sondern als eigenständiger Node-Server. XAMPP ist nur relevant, falls Apache als Reverse Proxy davor gesetzt werden soll.
+
+Schritte:
+
+1. **Node.js 18+** für Windows installieren
+2. In `backend/` und `frontend/` jeweils `npm install` (oder `npm run install-all`)
+3. `cd frontend && npm run build`
+4. `cd backend && npm start` – als Windows-Dienst via `pm2-windows-service` oder Task Scheduler
+5. **Poppler for Windows** installieren und Pfad zu den Binaries für `pdf-poppler` konfigurieren
+6. **Kiosk-Modus** windows-spezifisch nachbauen: Chrome/Edge im Vollbild + Autostart-Ordner / Aufgabenplanung

@@ -1,0 +1,20 @@
+# Wird vom setup-apache.sh nach public/media/.htaccess kopiert.
+#
+# Zweck: PHP-Ausfuehrung in diesem Verzeichnis hart deaktivieren.
+# Uploads landen hier; ohne diesen Schutz koennte eine als Bild getarnte
+# PHP-Datei serverseitig ausgefuehrt werden.
+
+# 1) PHP-Engine deaktivieren (mod_php)
+php_flag engine off
+
+# 2) PHP-Handler entfernen (falls anders konfiguriert)
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8 .pht .phar
+RemoveType    .php .phtml .php3 .php4 .php5 .php7 .php8 .pht .phar
+
+# 3) Direkter Zugriff auf evtl. hochgeladene PHP-Dateien verboten
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|php8|pht|phar)$">
+    Require all denied
+</FilesMatch>
+
+# 4) Kein Directory-Listing (zusaetzlich zur Vhost-Conf)
+Options -Indexes
