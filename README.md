@@ -103,6 +103,7 @@ cd amr_welcome_screen
 #### A.3 Apache + PHP + SSH einrichten
 
 ```bash
+chmod +x scripts/*.sh         # falls deine git-Config core.filemode=false hat
 sudo ./scripts/setup-apache.sh
 ```
 
@@ -203,11 +204,31 @@ Optional: das Backup auf einen anderen Rechner ziehen (per `scp` oder SFTP), dam
 
 ```bash
 # PM2 stoppen und aus dem Autostart entfernen.
-pm2 stop welcome-screen
-pm2 delete welcome-screen
-pm2 save
-sudo pm2 unstartup systemd
+pm2 stop welcome-screen   2>/dev/null || true
+pm2 delete welcome-screen 2>/dev/null || true
+pm2 save                  2>/dev/null || true
+sudo pm2 unstartup systemd 2>/dev/null || true
+```
 
+> **Hinweis zu `unstartup`:** Wenn die Ausgabe `Failed to stop pm2-root.service: Unit pm2-root.service not loaded.` oder `undefinedReturn code : 5` zeigt, ist das **kein Fehler** — es bedeutet nur, dass PM2 gar nicht in systemd registriert war (oder unter einem anderen User-Namen lief). Du kannst den Schritt überspringen.
+>
+> **Was wirklich noch starten könnte:** Falls du paranoia hast, sicher zu sein, dass nach dem Reboot kein Node-Prozess mehr läuft, prüfe:
+>
+> ```bash
+> systemctl list-unit-files | grep -i pm2
+> systemctl list-unit-files | grep -i welcome
+> crontab -l 2>/dev/null | grep -E '@reboot|node|welcome'
+> sudo crontab -l 2>/dev/null | grep -E '@reboot|node|welcome'
+> [ -f /etc/rc.local ] && grep -v '^#' /etc/rc.local | grep -v '^$'
+> ```
+>
+> Sind alle Ausgaben leer, ist das Node-System sauber abgeschaltet. Falls dort z. B. `pm2-pi.service` auftaucht (PM2 als `pi`-User registriert), entferne ihn mit:
+>
+> ```bash
+> sudo pm2 unstartup systemd -u pi --hp /home/pi
+> ```
+
+```bash
 # (Optional) PM2 selbst deinstallieren:
 sudo npm uninstall -g pm2
 ```
@@ -219,17 +240,40 @@ Falls der Kiosk-Autostart auf `welcome-screen.desktop` zeigt — den lassen wir,
 ```bash
 cd ~/amr_welcome_screen
 git fetch origin
-git status                    # sollte clean sein, oder du sicherst lokale Aenderungen
+git status -s | head -20
+```
+
+Wenn `git status` Änderungen oder untracked Dateien zeigt (typisch nach längerer Pi-Laufzeit: lokale Anpassungen in `backend/`, oder hineinkopierte Konfig-Dateien), **vor** dem Pull sichern und wegräumen:
+
+```bash
+# 1) Tarball-Backup als Sicherheitsnetz (~5 s):
+tar czf ~/welcome-screen-pi-backup-$(date +%Y%m%d-%H%M%S).tar.gz \
+    backend frontend context 2>/dev/null
+
+# 2) Lokale Aenderungen + untracked Dateien in einen Stash packen:
+git stash push --include-untracked -m "Pi-Local-State pre-PHP-migration"
+```
+
+Danach (oder wenn `git status` clean war) den Pull machen:
+
+```bash
 git pull
 ```
 
 Nach dem Pull sind die alten `backend/` und `frontend/` automatisch in `alt/` verschoben, das PHP-System liegt unter `public/`, `lib/`, `data/`, `deploy/`.
 
+> **Hinweis zum Stash:** der Stash bleibt erhalten und kann mit `git stash list` / `git stash show -p stash@{0}` jederzeit angeschaut werden. **Nicht** `git stash pop` nach der Migration — das würde versuchen, die alten Dateien in `backend/` und `frontend/` wiederherzustellen, was zu einer Mischstruktur mit `alt/` führt. Sobald die Migration durch ist und alles läuft (Schritt B.7), den Stash droppen: `git stash drop`. Dein Tarball aus dem Backup-Schritt ist dann immer noch da.
+>
+> **Notfall-Variante** (falls `stash` aus irgendeinem Grund nicht klappt): nach dem Tarball-Backup `git reset --hard origin/main && git clean -fd` ausführen — das setzt den Working-Tree komplett auf den Remote-Stand zurück (inklusive Löschen aller untracked Dateien).
+
 #### B.4 PHP-System einrichten
 
 ```bash
+chmod +x scripts/*.sh
 sudo ./scripts/setup-apache.sh
 ```
+
+> **Hinweis**: das `chmod +x` ist nur nötig, wenn deine git-Config `core.filemode = false` hat (typisch bei Cross-Plattform-Repos). Dauerhafte Lösung: `git config core.filemode true && git checkout -- scripts/`.
 
 Wenn du **direkt per SFTP** in `public/media/uploads/` schreiben können willst (siehe Abschnitt [SFTP-Zugriff](#sftp-zugriff)), nutze:
 
@@ -300,6 +344,130 @@ rm -rf alt/backend/node_modules alt/frontend/node_modules
 
 ---
 
+## Kiosk-Modus einrichten
+
+Damit der Pi nach jedem Reboot **automatisch** im Vollbild auf der Display-Seite landet, müssen fünf Bausteine zusammenpassen. Wenn einer fehlt, sieht man entweder den Desktop, einen Login-Prompt oder einen schwarzen Bildschirm nach 10 min.
+
+### 1. Voraussetzungen prüfen
+
+```bash
+echo "Session-Typ:  ${XDG_SESSION_TYPE:-unbekannt}"   # wayland (Bookworm-Default) oder x11
+command -v chromium-browser || command -v chromium || echo "Chromium FEHLT"
+sudo raspi-config nonint get_autologin                 # gibt z. B. 'B4' (Desktop-Autologin) zurueck
+ls -la ~/.config/autostart/welcome-screen.desktop 2>/dev/null
+```
+
+### 2. Chromium installieren (falls fehlt)
+
+```bash
+sudo apt-get install -y chromium-browser || sudo apt-get install -y chromium
+```
+
+### 3. Desktop-Auto-Login aktivieren
+
+Ohne Auto-Login bleibt der Pi nach dem Boot beim Login-Prompt stehen — der Autostart-Eintrag wird nie ausgeführt.
+
+```bash
+# Option A (interaktiv):
+sudo raspi-config
+# 1 System Options -> S5 Boot / Auto Login -> B4 Desktop Autologin
+
+# Option B (non-interaktiv):
+sudo raspi-config nonint do_boot_behaviour B4
+```
+
+### 4. Autostart-Desktop-Entry anlegen
+
+```bash
+mkdir -p ~/.config/autostart
+cat > ~/.config/autostart/welcome-screen.desktop << EOF
+[Desktop Entry]
+Type=Application
+Name=Welcome Screen
+Exec=$HOME/amr_welcome_screen/scripts/autostart-kiosk.sh
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+EOF
+```
+
+Wenn vom alten Node-System schon ein Eintrag existiert, dann nur die `Exec=`-Zeile aktualisieren (sie zeigte vorher auf eine `http://localhost:3000/display`-URL).
+
+### 5. Bildschirm-Power-Saving deaktivieren
+
+Standardmäßig schaltet der Pi den Bildschirm nach ~10 min ab. Für einen Welcome-Screen sehr störend. Die Konfiguration unterscheidet sich je nach Session-Typ:
+
+**Wayland (Pi-OS Bookworm Default):**
+
+```bash
+# Wayfire-Compositor konfigurieren:
+mkdir -p ~/.config
+cat >> ~/.config/wayfire.ini << EOF
+
+[idle]
+dpms_timeout = -1
+screensaver_timeout = -1
+EOF
+```
+
+**X11 (ältere Pi-OS-Versionen oder manuell umgestellt):**
+
+```bash
+# In ~/.xsessionrc oder im autostart-kiosk.sh vor dem Chromium-Aufruf:
+xset s off
+xset -dpms
+xset s noblank
+```
+
+### 6. Mauszeiger ausblenden (optional)
+
+```bash
+sudo apt-get install -y unclutter
+# Beim Login automatisch starten:
+echo '@unclutter -idle 0.5 -root' >> ~/.config/lxsession/LXDE-pi/autostart 2>/dev/null \
+  || echo '@unclutter -idle 0.5 -root' >> ~/.config/wayfire.ini
+```
+
+### 7. Test ohne Reboot
+
+```bash
+# Manuell starten (X11 oder Wayland mit DISPLAY/WAYLAND_DISPLAY gesetzt):
+./scripts/start-kiosk.sh
+```
+
+Chromium sollte sofort in Vollbild aufgehen und die Display-Seite zeigen. Schließen mit `Ctrl+Q` oder per SSH von einem anderen Rechner:
+
+```bash
+pkill -f chromium
+```
+
+### 8. Reboot-Test
+
+```bash
+sudo reboot
+```
+
+Nach ~30 s sollte:
+- ✅ Apache läuft (Display-Seite unter `http://<pi-ip>/`)
+- ✅ Pi loggt sich automatisch in den Desktop ein
+- ✅ Autostart ruft `autostart-kiosk.sh` auf
+- ✅ Chromium öffnet die Display-Seite im Vollbild
+- ✅ Bildschirm bleibt an, kein Mauszeiger zu sehen
+
+### Troubleshooting
+
+| Symptom | Wahrscheinliche Ursache | Fix |
+|---|---|---|
+| `echo $XDG_SESSION_TYPE` liefert `tty` (Text-Konsole) | Pi bootet in den Console-Modus, kein Desktop läuft | `sudo raspi-config nonint do_boot_behaviour B4 && sudo reboot` |
+| Pi bootet, Login-Prompt erscheint (Modus B3) | Auto-Login nicht aktiv | `sudo raspi-config nonint do_boot_behaviour B4` |
+| Desktop kommt, aber kein Chromium | Autostart-Datei fehlt / falscher Pfad | Schritt 4 prüfen, ggf. `chmod +x scripts/*.sh` |
+| Chromium kommt, aber kein Vollbild | Falscher Aufruf in Autostart | Sicherstellen, dass `Exec=` auf `autostart-kiosk.sh` zeigt |
+| Bildschirm wird nach 10 min schwarz | Screensaver/DPMS aktiv | Schritt 5 |
+| „Chrome wurde nicht ordnungsgemäß beendet" beim Reboot | Crashed-Bubble-Flag wirkt nicht | Profil löschen: `rm -rf ~/.config/chromium/Default/{Last\ Session,Last\ Tabs}` |
+| Display-Seite zeigt nur „Lade…" | Apache-Problem oder JS-Fehler | im Browser auf Pi DevTools öffnen: `Ctrl+Shift+I`, Console-Tab |
+
+---
+
 ## SFTP-Zugriff
 
 Der `setup-apache.sh`-Schritt aktiviert bereits den SSH-Server. Damit hast du automatisch **SFTP-Zugriff** auf den Pi — ohne dass du eine zusätzliche Software installieren musst. Jeder gängige SFTP-Client (FileZilla, Cyberduck, WinSCP, Transmit, OpenSSH-`sftp`) funktioniert direkt.
@@ -338,18 +506,50 @@ Nach dem Login landest du in deinem Home-Verzeichnis (`/home/<user>/`). Von dort
 - `/var/www/welcome-screen/data/` — JSON-Konfiguration. Lesen ok, Schreiben darf nur `www-data`.
 - `/var/www/welcome-screen/public/media/` — Mediendateien (Bilder, Videos, PDFs).
 
+### Optional: Uploads unter einem flachen Ordner zusammenfassen
+
+Wenn du per SFTP alle hochgeladenen Mediendateien an **einer** flachen Stelle sehen willst (statt verteilt unter `public/media/uploads/`, `public/media/converted/`, `public/media/static/`), kannst du den folgenden Helfer einmalig ausführen:
+
+```bash
+sudo ./scripts/setup-upload-symlink.sh
+```
+
+Was passiert:
+
+- Es wird `~/amr_welcome_screen/upload/` mit Unterordnern `uploads/`, `converted/`, `static/` und `static/widgets/` angelegt.
+- Bestehende Dateien aus `public/media/{uploads,converted,static}/` werden dorthin **verschoben** (nicht kopiert).
+- Die alten Pfade unter `public/media/` werden durch **Symlinks** auf die neue Stelle ersetzt.
+- Apache liefert weiterhin statisch aus (FollowSymLinks ist im Vhost aktiv), die `.htaccess` für PHP-Disable greift weiterhin rekursiv über die Symlinks.
+- Per SFTP siehst du dann alle Mediendateien unter `/home/<user>/amr_welcome_screen/upload/`.
+
+Rückgängig machen:
+
+```bash
+sudo ./scripts/setup-upload-symlink.sh --undo
+```
+
+> **Wichtig**: Auch mit dieser Verlegung gilt der Hinweis aus dem nächsten Abschnitt — SFTP-eingespielte Slideshow-Dateien werden nicht automatisch in `data/files.json` eingetragen. Entweder das Admin-Panel-Upload für Einzeldateien nutzen, oder `sudo -u www-data php scripts/scan-uploads.php` nach dem SFTP-Transfer ausführen.
+
 ### Wenn du Slideshow-Dateien per SFTP hochladen willst
 
-> **Wichtig**: Auch wenn du eine Datei direkt nach `public/media/uploads/` kopierst, **erscheint sie nicht automatisch in der Slideshow**. Das System verwaltet eine eigene Metadaten-Liste (`data/files.json`) mit ID, Dateityp, Größe und Sichtbarkeit. Diese Liste wird **nur** vom Admin-Panel-Upload (`/api/upload.php`) gepflegt.
->
-> **Empfohlener Workflow**: Lade Bilder/Videos/PDFs über das Admin-Panel hoch (Tab „Dateien"). Dort funktionieren:
-> - Multi-Upload mit Live-Progress
-> - automatische PDF-Konvertierung
-> - sichere MIME-Type-Validierung
-> - sortierbare Reihenfolge
-> - Sichtbarkeit umschalten
+Auch wenn du eine Datei direkt nach `public/media/uploads/` (bzw. `upload/uploads/`) kopierst, **erscheint sie nicht automatisch in der Slideshow**. Das System verwaltet eine eigene Metadaten-Liste (`data/files.json`) mit ID, Dateityp, Größe und Sichtbarkeit. Über das Admin-Panel-Upload (`/api/upload.php`) wird sie automatisch gepflegt — bei SFTP-Uploads gibt es ein eigenes Sync-Skript:
 
-Für **Spezialfälle** (z. B. eine bestehende Bildsammlung in einem Rutsch transferieren) kannst du `--sftp-write` beim Setup nutzen, damit dein User in `public/media/uploads/` schreiben darf. Anschließend musst du die Dateien aber trotzdem einmalig über das Admin-Panel hinzufügen, damit `data/files.json` die Metadaten kennt — dafür gibt es aktuell **keine** „Sync"-Funktion. Sprich mich gerne an, wenn du so eine Funktion willst (kleines Feature, kann ich nachrüsten).
+```bash
+# 1) Erst anschauen, was passieren würde:
+sudo -u www-data php scripts/scan-uploads.php --dry-run
+
+# 2) Wenn das ok aussieht, scharf schalten:
+sudo -u www-data php scripts/scan-uploads.php
+```
+
+Was das Skript tut:
+
+- **Neue Dateien** im uploads-Verzeichnis (die nicht in `files.json` stehen): MIME-Type validieren, IDs generieren, bei PDFs Seite 1 mit `pdftoppm` konvertieren, Eintrag anhängen
+- **Orphan-Einträge** (in `files.json` aber Datei fehlt): automatisch entfernen, zugehörige Converted-Datei mitlöschen
+- **Skippt** Dateien mit ungültigem MIME (z. B. `.txt`, `.zip`) und gibt eine Warnung aus
+- Idempotent: kann beliebig oft aufgerufen werden
+
+**Empfohlener Workflow**: für Einzeldateien das Admin-Panel-Upload nutzen (Drag&Drop, Live-Progress, sortierbare Reihenfolge). SFTP + `scan-uploads.php` ist gedacht für **Massen-Transfers** (z. B. wenn du 50 Bilder von einem Backup einspielen willst).
 
 ### SSH-Key statt Passwort (optional, empfohlen)
 
@@ -433,6 +633,67 @@ Jede Schreiboperation nutzt `flock()` und schreibt atomar
 > Die Admin-Seite ist absichtlich **nicht** authentifiziert (LAN-only).
 > Wenn das System aus dem Internet erreichbar gemacht wird, **muss** vor
 > Inbetriebnahme HTTP-Basic-Auth oder eine andere Auth nachgerüstet werden.
+
+## Troubleshooting
+
+### `sudo: ./scripts/...sh: Befehl nicht gefunden`
+
+Trotz vorhandener Datei? Dann sind das die zwei wahrscheinlichsten Ursachen:
+
+```bash
+# Diagnose:
+ls -la scripts/
+file scripts/setup-apache.sh
+head -1 scripts/setup-apache.sh | od -c | head -1
+```
+
+- **`file` meldet `CRLF line terminators`** oder `od -c` zeigt `\r \n` → das Skript hat Windows-Line-Endings, der Kernel sucht nach `/bin/bash\r`. Fix:
+
+  ```bash
+  sudo apt-get install -y dos2unix
+  dos2unix scripts/*.sh
+  chmod +x scripts/*.sh
+  ```
+
+- **`ls` zeigt das Skript nicht** → `git pull` hat den neuen Stand noch nicht geholt (z. B. weil ein vorheriger Konflikt nicht behoben wurde). Siehe Abschnitt [B.3](#b3-repo-auf-den-neuen-stand-bringen).
+
+- **Skript ohne `x`-Permission** → `chmod +x scripts/*.sh`.
+
+### Apache liefert 403 Forbidden
+
+```bash
+namei -l /var/www/welcome-screen/public/index.php   # zeigt Permissions jeder Pfad-Ebene
+sudo tail -20 /var/log/apache2/welcome-screen-error.log
+```
+
+**Häufigste Ursache auf Pi-OS Bookworm**: das User-Home (`/home/<user>/`) ist Mode `700` — Apache (`www-data`) kann nicht durchtraversieren. Fix:
+
+```bash
+chmod o+x /home/<user>
+```
+
+(Setzt nur das Execute-Bit, nicht das Lese-Bit — andere können dadurch nicht den Inhalt von `/home/<user>/` listen.)
+
+Weitere mögliche Ursachen:
+- DocumentRoot zeigt nicht auf `<repo>/public` (Symlink `/var/www/welcome-screen` fehlt oder zeigt falsch)
+- `FollowSymLinks` im Vhost fehlt nach manueller Bearbeitung
+- `.htaccess` in `public/media/` syntaktisch fehlerhaft (z. B. nach Editor-Update)
+
+### Upload-Endpunkt liefert 500 bei PDFs
+
+```bash
+which pdftoppm
+sudo apt-get install -y poppler-utils
+```
+
+### Schreibrechte-Probleme in `public/media/`
+
+```bash
+ls -la public/media/
+# Sollte: drwxrwsr-x www-data www-data ...
+sudo chown -R www-data:www-data data/ public/media/
+sudo find public/media/ -type d -exec chmod g+s {} +
+```
 
 ## Migrations-Historie
 

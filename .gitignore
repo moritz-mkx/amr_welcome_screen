@@ -24,6 +24,9 @@ public/media/static/*
 # Apache-spezifisch
 .htaccess.local
 
+# Optionales gemeinsames Upload-Verzeichnis (siehe scripts/setup-upload-symlink.sh)
+upload/
+
 # --- Legacy-System (alt/) ---
 # Node-/React-Reste werden nicht mehr genutzt, aber als Referenz aufbewahrt.
 # Wir ignorieren hier nur die typischen "schmutzigen" Verzeichnisse;

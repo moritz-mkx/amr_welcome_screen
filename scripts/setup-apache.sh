@@ -145,6 +145,31 @@ echo "  ${HTACCESS_DST} geschrieben."
 echo ""
 echo "[6/8] Schreibrechte setzen..."
 
+# 6a) Pfad-Traversal-Rechte sicherstellen: Apache (www-data) muss auf jeder
+#     Komponente zwischen / und ${REPO_DIR} mindestens das Execute-Bit haben,
+#     sonst gibt es spaeter 403 Forbidden. Auf Raspberry Pi OS Bookworm sind
+#     User-Homes per Default Mode 700 -> wir setzen o+x dort, wo es fehlt.
+#
+#     Wir loesen das hardcodiert ueber den Pfad zwischen / und ${REPO_DIR}
+#     statt mit "find -type d", weil wir nur das Execute-Bit von Parents
+#     anfassen wollen (nicht das Lese-Bit).
+current_path=""
+IFS='/' read -ra PATH_PARTS <<< "${REPO_DIR}"
+for part in "${PATH_PARTS[@]}"; do
+    [[ -z "$part" ]] && continue
+    current_path="${current_path}/${part}"
+    # Nur anfassen, wenn das Execute-Bit fuer "others" wirklich fehlt.
+    if [[ -d "$current_path" ]] && [[ -z "$(stat -c '%a' "$current_path" 2>/dev/null | grep -E '^.[1-7]$|^..[1-7]$|^...[1-7]$')" ]]; then
+        # Fallback: bei stat-Format-Variationen einfach pruefen via test -x als www-data.
+        :
+    fi
+    # Robuste Pruefung: kann www-data hier rein?
+    if ! sudo -u www-data test -x "$current_path" 2>/dev/null; then
+        chmod o+x "$current_path"
+        echo "  + o+x auf ${current_path}"
+    fi
+done
+
 mkdir -p "${REPO_DIR}/data" \
          "${REPO_DIR}/public/media/uploads" \
          "${REPO_DIR}/public/media/converted" \

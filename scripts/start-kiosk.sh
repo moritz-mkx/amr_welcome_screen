@@ -24,14 +24,23 @@ fi
 # Starte Chromium im Kiosk-Modus
 echo "Starte Chromium im Kiosk-Modus mit URL: $URL"
 
-# Optionen:
-# --kiosk: Vollbild-Modus ohne UI
-# --noerrdialogs: Keine Fehlerdialoge
-# --disable-infobars: Keine Info-Bars
-# --autoplay-policy=no-user-gesture-required: Autoplay erlauben
-# --disable-features=TranslateUI: Übersetzungs-UI deaktivieren
-# --disable-session-crashed-bubble: Keine Crash-Meldungen
-# --disable-restore-session-state: Keine Session-Wiederherstellung
+# Chromium-Flags:
+#   --kiosk                                  Vollbild ohne UI
+#   --noerrdialogs                           keine modalen Error-Dialoge
+#   --disable-infobars                       keine Info-Bars
+#   --autoplay-policy=no-user-gesture-required  Video-Autoplay erlauben (Slideshow!)
+#   --disable-features=TranslateUI           kein Translate-Banner
+#   --disable-session-crashed-bubble         kein "Chrome ist nicht ordnungsgemaess beendet"-Popup
+#   --disable-restore-session-state          keine Tabs aus letzter Sitzung
+#   --no-first-run                           kein First-Run-Wizard
+#   --check-for-update-interval=31536000     ein Jahr keine Update-Checks
+#   --password-store=basic                   keine Keyring-Popups
+#   --overscroll-history-navigation=0        keine Touch-Gesten fuer Zurueck/Vor
+#   --disable-pinch                          kein Pinch-Zoom
+#
+# Bewusst entfernt (vorher drin, aber unnoetig/schaedlich):
+#   --disable-web-security        - schaltet Same-Origin-Schutz aus, hier ueberfluessig
+#   --disable-features=VizDisplayCompositor - Legacy-Workaround, kann auf modernem Chromium Crashes verursachen
 
 $CHROMIUM_CMD \
     --kiosk \
@@ -41,8 +50,11 @@ $CHROMIUM_CMD \
     --disable-features=TranslateUI \
     --disable-session-crashed-bubble \
     --disable-restore-session-state \
-    --disable-web-security \
-    --disable-features=VizDisplayCompositor \
+    --no-first-run \
+    --check-for-update-interval=31536000 \
+    --password-store=basic \
+    --overscroll-history-navigation=0 \
+    --disable-pinch \
     "$URL" &
 
 echo "Chromium wurde gestartet. PID: $!"
